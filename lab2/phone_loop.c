@@ -17,6 +17,6 @@ int main(){
         printf("ERROR\n");
         error = 1;
     }
-    return error;
     }
+    return error;
 }
