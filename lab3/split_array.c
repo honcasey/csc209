@@ -11,8 +11,7 @@
 int **split_array(const int *s, int length) {
     int **result = malloc(sizeof(int) * 2);
     int half = length / 2;
-    int rem = length % 2;
-    int *evens = malloc(sizeof(int) * (half + rem)); 
+    int *evens = malloc(sizeof(int) * (length - half)); 
     int *odds = malloc(sizeof(int) * half); 
 
     int even_x = 0; 
