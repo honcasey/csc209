@@ -15,7 +15,23 @@
  */
 
 /* Write your solution here */
+void fib(int **fib_seq, int n) {
+    *fib_seq = malloc(n * sizeof(int));
+    
+    int n1 = 0;
+    int n2 = 1;
 
+    if (n == 1) {
+        (*fib_seq)[0] = n1;
+    }
+    else {
+        for (int i = 0; i < n; i++) {
+            (*fib_seq)[i] = n1;
+            n1 = n2;
+            n2 = (*fib_seq)[i] + n1;
+    }
+    }
+}
 
 int main(int argc, char **argv) {
     /* do not change this main function */
