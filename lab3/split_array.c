@@ -9,7 +9,7 @@
    Do not allocate any more memory than necessary.
 */
 int **split_array(const int *s, int length) {
-    int **result = (int**)malloc(sizeof(int) * 2);
+    int **result = (int**)malloc(sizeof(int*) * 2);
     int half = length / 2;
     int *evens = (int*)malloc(sizeof(int) * (length - half)); 
     int *odds = (int*)malloc(sizeof(int) * half); 
