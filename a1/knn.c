@@ -35,7 +35,7 @@ unsigned char get_label(char *filename) {
  * ******************************************************************/
 
 
-/* Read a pgm image from filename, storing its pixels
+/** Read a pgm image from filename, storing its pixels
  * in the array img.
  * It is recommended to use fscanf to read the values from the file. First, 
  * consume the header information.  You should declare two temporary variables
@@ -53,8 +53,16 @@ void load_image(char *filename, unsigned char *img) {
         perror("fopen");
         exit(1);
     }
-	//TODO
+	int width, height;
+    fscanf(f2, "P2 %d %d 255 ", &width, &height); // reading header
 
+    unsigned char pixel;
+    int i = 0;
+    while (fscanf(f2, "%hhu ", &pixel) == 1) {
+        img[i] = pixel;
+        i++;
+    }
+    
     fclose(f2);
 }
 
@@ -80,11 +88,16 @@ int load_dataset(char *filename,
         perror("fopen");
         exit(1);
     }
-
-    //TODO
-
-    fclose(f1);
-    return -1;
+    
+    char image_name[MAX_NAME];
+    int i = 0;
+    while (fscanf(f1, "%s\n", image_name) == 1) {
+        load_image(image_name, dataset[i]);
+        labels[i] = get_label(image_name);
+        i++;
+    }
+    fclose(f1); 
+    return i;
 }
 
 /** 
@@ -92,10 +105,11 @@ int load_dataset(char *filename,
  * a and b.  (See handout for the euclidean distance function)
  */
 double distance(unsigned char *a, unsigned char *b) {
-
-    // TODO
-
-    return 0.0;
+    double sum = 0.0;
+    for (int i = 0; i < NUM_PIXELS; i++) {
+        sum += pow((a[i] - b[i]), 2.0);
+    }
+    return sqrt(sum);
 }
 
 /**
