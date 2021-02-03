@@ -173,7 +173,7 @@ int knn_predict(unsigned char *input, int K,
     }
 
     double diff;
-    for (int i = K + 1; i < training_size; i++) { 
+    for (int i = K; i < training_size; i++) { 
         diff = distance(input, dataset[i]);
         if (diff < curr_min) {
             curr_min = diff;
