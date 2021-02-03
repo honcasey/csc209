@@ -91,7 +91,7 @@ int load_dataset(char *filename,
     
     char image_name[MAX_NAME];
     int i = 0;
-    while (fscanf(f1, "%s\n", image_name) == 1) {
+    while (fscanf(f1, "%s", image_name) == 1) {
         load_image(image_name, dataset[i]);
         labels[i] = get_label(image_name);
         i++;
@@ -107,9 +107,23 @@ int load_dataset(char *filename,
 double distance(unsigned char *a, unsigned char *b) {
     double sum = 0.0;
     for (int i = 0; i < NUM_PIXELS; i++) {
-        sum += pow((a[i] - b[i]), 2.0);
+        //printf("%d", a[i]);
+        sum += pow((a[i] - b[i]), 2);
     }
     return sqrt(sum);
+}
+
+/**
+ * Return index of maximum value in array
+ */
+int max(unsigned char *arr, int size) {
+    int curr_max = 0;
+    for (int i = 1; i < size; i++) {
+        if (arr[i] > arr[curr_max]) {
+            curr_max = i;
+        }
+    }
+    return curr_max;
 }
 
 /**
@@ -139,7 +153,59 @@ int knn_predict(unsigned char *input, int K,
                 unsigned char *labels,
                 int training_size) {
 
-    // TODO
+    //unsigned char closest_k[K];
+    unsigned char closest_k_labels[K];
+    unsigned char closest_k_distances[K];
 
-    return -1;
+    double curr_min = distance(input, dataset[0]);
+    int curr_max = 0;
+
+    for (int n = 0; n < K; n++) { // initializing first k images as the initial closest k images to have smth to compare to
+        // closest_k[n] = dataset[n];
+        closest_k_labels[n] = labels[n];
+        closest_k_distances[n] = distance(input, dataset[n]);
+        if (closest_k_distances[n] < curr_min) {
+            curr_min = closest_k_distances[n];
+        }
+        if (closest_k_distances[n] > closest_k_distances[curr_max]) {
+            curr_max = n;
+        }
+    }
+
+    double diff;
+    for (int i = K + 1; i < training_size; i++) { 
+        diff = distance(input, dataset[i]);
+        if (diff < curr_min) {
+            curr_min = diff;
+            closest_k_distances[curr_max] = diff;
+            closest_k_labels[curr_max] = labels[i];
+            // closest_k[curr_max] = dataset[i]; 
+            curr_max = max(closest_k_distances, K);
+        }    
+    }
+
+    char freqs[K]; // counting frequencies of labels
+    for (int x = 0; x < K; x++) {
+        int reps = 1; // number of repetitions
+        for (int y = x + 1; y < K; y++) {
+            if (labels[y] == labels[x]) {
+                reps++;
+            }
+        }
+        freqs[x] = reps;
+    }
+    
+    int most = 0; // index of most frequently occuring label
+    for (int c = 1; c < K - 1; c++) {
+        if (freqs[c] > freqs[most]) {
+            most = c;
+        }
+        if (freqs[c] == freqs[most]) {
+            if (labels[c] > labels[most]) {
+                most = c;
+            }
+        }
+    }
+
+    return (int)labels[most];
 }

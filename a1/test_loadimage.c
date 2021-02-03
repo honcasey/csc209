@@ -19,5 +19,6 @@ int main(int argc, char **argv) {
 
     load_image(argv[1], image);
     print_image(image);
+    
     return 0;
 }
