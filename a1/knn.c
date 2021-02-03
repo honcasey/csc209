@@ -171,10 +171,16 @@ int knn_predict(unsigned char *input, int K,
             curr_max = n;
         }
     }
+    // DEBUG: printing first K labels and distances
+    for (int d = 0; d < K; d++) {
+        printf("label at %d is: %c", d, closest_k_labels[d]);
+        printf("distance at %d is: %c", d, closest_k_distances[d]);
+    }
 
     double diff;
     for (int i = K; i < training_size; i++) { 
-        diff = distance(input, dataset[i]);
+        diff = distance(input, dataset[i]); // distance between test image and training image
+        printf("curr_min is %f, new diff is %f", curr_min, diff); // DEBUG
         if (diff < curr_min) {
             curr_min = diff;
             closest_k_distances[curr_max] = diff;
@@ -183,20 +189,32 @@ int knn_predict(unsigned char *input, int K,
             curr_max = max(closest_k_distances, K);
         }    
     }
+    // DEBUG: printing new closest K labels and distances
+    for (int p = 0; p < K; p++) {
+        printf("label at %c is: %c", p, closest_k_labels[p]);
+        printf("distance at %d is: %c", p, closest_k_distances[p]);
+    }
 
     char freqs[K]; // counting frequencies of labels
     for (int x = 0; x < K; x++) {
         int reps = 1; // number of repetitions
         for (int y = x + 1; y < K; y++) {
-            if (closest_k_labels[y] == closest_k_labels[x]) {
+            printf("y is %c, x is %c", closest_k_labels[y], closest_k_labels[x]); // DEBUG check what labels are being compared
+            if (closest_k_labels[y] == closest_k_labels[x]) { 
                 reps++;
             }
         }
         freqs[x] = reps;
     }
+    // DEBUG: printing frequencies of labels:
+    for (int s = 0; s < K; s++) {
+        printf("freq of %c is %c", closest_k_labels[s], freqs[s]);
+    }
     
     int most = 0; // index of most frequently occuring label
-    for (int c = 1; c < K - 1; c++) {
+    for (int c = 1; c < K; c++) {
+        printf("label at %d is %c", c, freqs[c]); // DEBUG check what label at freq
+        printf("current most is %d", most); // DEBUG check what curr most is
         if (freqs[c] > freqs[most]) {
             most = c;
         }
@@ -206,6 +224,9 @@ int knn_predict(unsigned char *input, int K,
             }
         }
     }
+
+    // DEBUG
+    printf("most occuring label is %d", most);
 
     return (int)closest_k_labels[most];
 }
