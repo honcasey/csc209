@@ -188,7 +188,7 @@ int knn_predict(unsigned char *input, int K,
     for (int x = 0; x < K; x++) {
         int reps = 1; // number of repetitions
         for (int y = x + 1; y < K; y++) {
-            if (labels[y] == labels[x]) {
+            if (closest_k_labels[y] == closest_k_labels[x]) {
                 reps++;
             }
         }
@@ -201,11 +201,11 @@ int knn_predict(unsigned char *input, int K,
             most = c;
         }
         if (freqs[c] == freqs[most]) {
-            if (labels[c] > labels[most]) {
+            if (closest_k_labels[c] > closest_k_labels[most]) {
                 most = c;
             }
         }
     }
 
-    return (int)labels[most];
+    return (int)closest_k_labels[most];
 }
