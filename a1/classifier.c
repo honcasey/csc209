@@ -79,11 +79,11 @@ int main(int argc, char *argv[]) {
 
     printf("Loading training data...\n");
 
-    // TODO: (use load_dataset)
+    num_training_files = load_dataset(training_file_list, training_dataset, training_labels);
 
     printf("Loading testing data...\n");
 
-    // TODO: (use load_dataset)
+    num_test_files = load_dataset(test_file_list, test_dataset, test_labels);
     
 
     /* TODO: for each image in the test image dataset, call knn_predict
@@ -92,7 +92,11 @@ int main(int argc, char *argv[]) {
      * of correct predictions.  Hint: the return value of load_dataset tells
      * you how many images of each type you have.
      */
-
+    for (int i = 0; i < num_test_files; i++) {
+        if (knn_predict(test_dataset[i], K, training_dataset, training_labels, num_training_files) == test_labels[i]) {
+            num_correct++;
+        };
+    }
 
     // Print out answer
     printf("Number of correct predictions: %d\n", num_correct);
