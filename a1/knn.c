@@ -227,7 +227,7 @@ int knn_predict(unsigned char *input, int K,
     }
 
     // DEBUG
-    printf("most occuring label is %d", most);
+    //printf("most occuring label is %d", most);
 
     return (int)closest_k_labels[most];
 }
