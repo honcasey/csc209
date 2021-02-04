@@ -173,8 +173,8 @@ int knn_predict(unsigned char *input, int K,
     }
     // DEBUG: printing first K labels and distances
     for (int d = 0; d < K; d++) {
-        printf("label at %d is: %c", d, closest_k_labels[d]);
-        printf("distance at %d is: %c", d, closest_k_distances[d]);
+        printf("label at %d is: %d", d, (int)closest_k_labels[d]);
+        printf("distance at %d is: %d", d, (int)closest_k_distances[d]);
     }
 
     double diff;
@@ -191,15 +191,15 @@ int knn_predict(unsigned char *input, int K,
     }
     // DEBUG: printing new closest K labels and distances
     for (int p = 0; p < K; p++) {
-        printf("label at %c is: %c", p, closest_k_labels[p]);
-        printf("distance at %d is: %c", p, closest_k_distances[p]);
+        printf("label at %d is: %d", p, (int)closest_k_labels[p]);
+        printf("distance at %d is: %d", p, (int)closest_k_distances[p]);
     }
 
     char freqs[K]; // counting frequencies of labels
     for (int x = 0; x < K; x++) {
         int reps = 1; // number of repetitions
         for (int y = x + 1; y < K; y++) {
-            printf("y is %c, x is %c", closest_k_labels[y], closest_k_labels[x]); // DEBUG check what labels are being compared
+            printf("y is %d, x is %d", (int)closest_k_labels[y], (int)closest_k_labels[x]); // DEBUG check what labels are being compared
             if (closest_k_labels[y] == closest_k_labels[x]) { 
                 reps++;
             }
@@ -208,12 +208,12 @@ int knn_predict(unsigned char *input, int K,
     }
     // DEBUG: printing frequencies of labels:
     for (int s = 0; s < K; s++) {
-        printf("freq of %c is %c", closest_k_labels[s], freqs[s]);
+        printf("freq of %d is %d", (int)closest_k_labels[s], (int)freqs[s]);
     }
     
     int most = 0; // index of most frequently occuring label
     for (int c = 1; c < K; c++) {
-        printf("label at %d is %c", c, freqs[c]); // DEBUG check what label at freq
+        printf("label at %d is %d", c, (int)freqs[c]); // DEBUG check what label at freq
         printf("current most is %d", most); // DEBUG check what curr most is
         if (freqs[c] > freqs[most]) {
             most = c;
