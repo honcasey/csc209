@@ -153,15 +153,15 @@ int knn_predict(unsigned char *input, int K,
                 unsigned char *labels,
                 int training_size) {
 
-    unsigned char closest_k_labels[K];
-    double closest_k_distances[K];
+    unsigned char closest_k_labels[K]; // array of labels of closest k images to input
+    double closest_k_distances[K]; // array of closest k distances to input
 
-    double curr_min = distance(input, dataset[0]);
-    int curr_max = 0;
+    double curr_min = distance(input, dataset[0]); // value of current smallest distance in the closest k distances
+    int curr_max = 0; // index of largest distance in closest_k_distances
 
     for (int n = 0; n < K; n++) { // initializing first k images as the initial closest k images to have smth to compare to
-        closest_k_labels[n] = labels[n]; 
-        closest_k_distances[n] = distance(input, dataset[n]); 
+        closest_k_labels[n] = labels[n]; // 5
+        closest_k_distances[n] = distance(input, dataset[n]); // 2851.6635
         if (closest_k_distances[n] < curr_min) { 
             curr_min = closest_k_distances[n];
         }
@@ -171,9 +171,9 @@ int knn_predict(unsigned char *input, int K,
     }
 
     double diff;
-    for (int i = K; i < training_size; i++) { // compare with the rest of training dataset from K onwards
+    for (int i = K; i <= training_size; i++) { // compare with the rest of training dataset from K onwards
         diff = distance(input, dataset[i]); // distance between test image and training image 
-        
+        // at 1 = 2920.01455
         if (diff < curr_min) {
             curr_min = diff;
             closest_k_distances[curr_max] = diff;
