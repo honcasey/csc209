@@ -116,7 +116,7 @@ double distance(unsigned char *a, unsigned char *b) {
 /**
  * Return index of maximum value in array
  */
-int max(unsigned char *arr, int size) {
+int max(double *arr, int size) {
     int curr_max = 0;
     for (int i = 1; i < size; i++) {
         if (arr[i] > arr[curr_max]) {
@@ -155,15 +155,15 @@ int knn_predict(unsigned char *input, int K,
 
     //unsigned char closest_k[K];
     unsigned char closest_k_labels[K];
-    unsigned char closest_k_distances[K];
+    double closest_k_distances[K];
 
     double curr_min = distance(input, dataset[0]);
     int curr_max = 0;
 
     for (int n = 0; n < K; n++) { // initializing first k images as the initial closest k images to have smth to compare to
         // closest_k[n] = dataset[n];
-        closest_k_labels[n] = labels[n]; // -> 5, 0
-        closest_k_distances[n] = distance(input, dataset[n]); // -> 2395, 2650
+        closest_k_labels[n] = labels[n]; // -> 5, 0 (this is working)
+        closest_k_distances[n] = distance(input, dataset[n]); // -> 2395, 2650 (not working? giving 91, then 90, is it because this isn't an array of doubles?)
         if (closest_k_distances[n] < curr_min) { // should not go satisfy either if at first 
             curr_min = closest_k_distances[n];
         }
@@ -179,7 +179,7 @@ int knn_predict(unsigned char *input, int K,
 
     double diff;
     for (int i = K; i < training_size; i++) { // compare with the rest of training dataset from K onwards
-        diff = distance(input, dataset[i]); // distance between test image and training image
+        diff = distance(input, dataset[i]); // distance between test image and training image (2436 when i = 2)
         // printf("curr_min is %f, new diff is %f", curr_min, diff); // DEBUG
         if (diff < curr_min) {
             curr_min = diff;
