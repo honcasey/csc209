@@ -160,8 +160,8 @@ int knn_predict(unsigned char *input, int K,
     int curr_max = 0; // index of largest distance in closest_k_distances
 
     for (int n = 0; n < K; n++) { // initializing first k images as the initial closest k images to have smth to compare to
-        closest_k_labels[n] = labels[n]; // 5
-        closest_k_distances[n] = distance(input, dataset[n]); // 2851.6635
+        closest_k_labels[n] = labels[n]; 
+        closest_k_distances[n] = distance(input, dataset[n]);
         if (closest_k_distances[n] < curr_min) { 
             curr_min = closest_k_distances[n];
         }
@@ -171,17 +171,16 @@ int knn_predict(unsigned char *input, int K,
     }
 
     double diff;
-    for (int i = K; i <= training_size; i++) { // compare with the rest of training dataset from K onwards
+    for (int i = K; i < training_size; i++) { // compare with the rest of training dataset from K onwards
         diff = distance(input, dataset[i]); // distance between test image and training image 
-        // at 1 = 2920.01455
         if (diff < curr_min) {
             curr_min = diff;
             closest_k_distances[curr_max] = diff;
             closest_k_labels[curr_max] = labels[i];
             curr_max = max(closest_k_distances, K);
-        }    
+        } 
     }
-
+    
     char freqs[K]; // counting frequencies of labels
     for (int x = 0; x < K; x++) {
         int reps = 1; // number of repetitions

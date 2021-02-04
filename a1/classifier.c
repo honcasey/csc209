@@ -4,7 +4,7 @@
 
 /**
  * Compilation command
- *    gcc -Wall -std=c99 -lm -o classifier classifier.c knn.c
+ *    gcc -Wall -std=c99 -o classifier classifier.c knn.c -lm
  *
  * Decompress dataset into individual images.  The files in lists expect
  * the directory that contains the classifier executable also contains the
