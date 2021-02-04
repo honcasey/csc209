@@ -93,8 +93,6 @@ int main(int argc, char *argv[]) {
      * you how many images of each type you have.
      */
     for (int i = 0; i < num_test_files; i++) {
-        //printf("training size = %d\n", num_training_files); // works -> should be 1000
-        // printf("test image is %s", test_dataset[i]); // iterating properly -> first should be 0-7.pgm
         if (knn_predict(test_dataset[i], K, training_dataset, training_labels, num_training_files) == test_labels[i]) {
             num_correct++;
         };
