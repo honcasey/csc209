@@ -162,25 +162,25 @@ int knn_predict(unsigned char *input, int K,
 
     for (int n = 0; n < K; n++) { // initializing first k images as the initial closest k images to have smth to compare to
         // closest_k[n] = dataset[n];
-        closest_k_labels[n] = labels[n];
-        closest_k_distances[n] = distance(input, dataset[n]);
-        if (closest_k_distances[n] < curr_min) {
+        closest_k_labels[n] = labels[n]; // -> 5, 0
+        closest_k_distances[n] = distance(input, dataset[n]); // -> 2395, 2650
+        if (closest_k_distances[n] < curr_min) { // should not go satisfy either if at first 
             curr_min = closest_k_distances[n];
         }
-        if (closest_k_distances[n] > closest_k_distances[curr_max]) {
+        if (closest_k_distances[n] > closest_k_distances[curr_max]) { // should satisfy this for second, curr_max = 1
             curr_max = n;
         }
     }
     // DEBUG: printing first K labels and distances
-    for (int d = 0; d < K; d++) {
-        printf("label at %d is: %d", d, (int)closest_k_labels[d]);
-        printf("distance at %d is: %d", d, (int)closest_k_distances[d]);
-    }
+    //for (int d = 0; d < K; d++) {
+    //    printf("label at %d is: %d", d, (int)closest_k_labels[d]);
+    //    printf("distance at %d is: %d", d, (int)closest_k_distances[d]);
+    //}
 
     double diff;
-    for (int i = K; i < training_size; i++) { 
+    for (int i = K; i < training_size; i++) { // compare with the rest of training dataset from K onwards
         diff = distance(input, dataset[i]); // distance between test image and training image
-        printf("curr_min is %f, new diff is %f", curr_min, diff); // DEBUG
+        // printf("curr_min is %f, new diff is %f", curr_min, diff); // DEBUG
         if (diff < curr_min) {
             curr_min = diff;
             closest_k_distances[curr_max] = diff;
@@ -190,16 +190,17 @@ int knn_predict(unsigned char *input, int K,
         }    
     }
     // DEBUG: printing new closest K labels and distances
-    for (int p = 0; p < K; p++) {
-        printf("label at %d is: %d", p, (int)closest_k_labels[p]);
-        printf("distance at %d is: %d", p, (int)closest_k_distances[p]);
-    }
+    //for (int p = 0; p < K; p++) {
+    //    printf("label at %d is: %d", p, (int)closest_k_labels[p]);
+    //    printf("distance at %d is: %d", p, (int)closest_k_distances[p]);
+    //}
 
     char freqs[K]; // counting frequencies of labels
     for (int x = 0; x < K; x++) {
         int reps = 1; // number of repetitions
         for (int y = x + 1; y < K; y++) {
-            printf("y is %d, x is %d", (int)closest_k_labels[y], (int)closest_k_labels[x]); // DEBUG check what labels are being compared
+            // DEBUG check what labels are being compared
+            //printf("y is %d, x is %d", (int)closest_k_labels[y], (int)closest_k_labels[x]); 
             if (closest_k_labels[y] == closest_k_labels[x]) { 
                 reps++;
             }
@@ -207,14 +208,14 @@ int knn_predict(unsigned char *input, int K,
         freqs[x] = reps;
     }
     // DEBUG: printing frequencies of labels:
-    for (int s = 0; s < K; s++) {
-        printf("freq of %d is %d", (int)closest_k_labels[s], (int)freqs[s]);
-    }
+    //for (int s = 0; s < K; s++) {
+    //    printf("freq of %d is %d", (int)closest_k_labels[s], (int)freqs[s]);
+    //}
     
     int most = 0; // index of most frequently occuring label
     for (int c = 1; c < K; c++) {
-        printf("label at %d is %d", c, (int)freqs[c]); // DEBUG check what label at freq
-        printf("current most is %d", most); // DEBUG check what curr most is
+        //printf("label at %d is %d", c, (int)freqs[c]); // DEBUG check what label at freq
+        //printf("current most is %d", most); // DEBUG check what curr most is
         if (freqs[c] > freqs[most]) {
             most = c;
         }
