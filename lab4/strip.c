@@ -27,7 +27,16 @@
 */
 
 // Write the function strip_q_marks here
-
+int strip_q_marks(char *msg) {
+    int len = strlen(msg);
+    int n = 0;
+    while (msg[len - 1] == '?') {
+        msg[len - 1] = '\0';
+        n++;
+        len = strlen(msg);
+    }
+    return n;
+}
 
 int main(int argc, char **argv) {
     // Do not change this main function.
