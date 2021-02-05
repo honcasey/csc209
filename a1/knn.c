@@ -54,7 +54,7 @@ void load_image(char *filename, unsigned char *img) {
         exit(1);
     }
 	int width, height;
-    fscanf(f2, "P2 %d %d 255 ", &width, &height); // reading header
+    int temp = fscanf(f2, "P2 %d %d 255 ", &width, &height); // reading header
 
     unsigned char pixel;
     int i = 0;
