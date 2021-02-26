@@ -17,7 +17,7 @@ char *copy(char *dest, const char *src, int capacity) {
         if (src[i] != '\0') {
             dest[i] = src[i];
         }
-        else { dest[i] == '\0'; }
+        else { dest[i] = '\0'; }
     }
     dest[capacity - 1] = '\0';
     return dest;
