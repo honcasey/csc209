@@ -30,7 +30,39 @@
  */
 Dataset *load_dataset(const char *filename) {
     // TODO: Allocate data, read image data / labels, return
-    return NULL;
+    FILE *data_file;
+
+    data_file = fopen(filename, "rb");
+    if (data_file == NULL) {
+        perror("fopen");
+        exit(1);
+    }
+
+    Dataset *d;
+    fread(&d->num_items, 4, 1, data_file); // reading num of images/labels in data_file
+        // put into while loop and return error for fread?
+
+    int i = 0;
+    Image* img = (Image*)malloc(sizeof(Image));
+    img->sx = WIDTH;
+    img->sy = WIDTH;
+
+    while (!feof(data_file)) {
+        fread(&d->labels[i], 1, 1, data_file); // read image's label into Dataset's array of labels
+        fread(&img->data, NUM_PIXELS, 1, data_file); // read image's data into an Image struct
+        d->images[i] = *img;
+        i++;
+    }
+
+    int err = fclose(data_file);
+    if (err != 0) {
+        perror("fclose");
+        exit(1);
+    }
+
+    free(img);
+    
+    return d;
 }
 
 /**
