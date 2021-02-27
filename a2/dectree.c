@@ -38,10 +38,12 @@ Dataset *load_dataset(const char *filename) {
         exit(1);
     }
 
-    Dataset *d;
+    Dataset *d = (Dataset*)malloc(sizeof(Dataset));
     fread(&d->num_items, 4, 1, data_file); // reading num of images/labels in data_file
         // put into while loop and return error for fread?
 
+    
+    
     int i = 0;
     Image* img = (Image*)malloc(sizeof(Image));
     img->sx = WIDTH;
@@ -61,7 +63,6 @@ Dataset *load_dataset(const char *filename) {
     }
 
     free(img);
-    
     return d;
 }
 
