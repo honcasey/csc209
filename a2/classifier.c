@@ -67,7 +67,7 @@ int main(int argc, char *argv[]) {
 
   printf("Decision tree built, calling classify...\n");
   for (int i = 0; i < testing_set->num_items; i++) {
-    if (dec_tree_classify(tree, &testing_set->images[i]) == &testing_set->labels[i]) {
+    if (dec_tree_classify(tree, &testing_set->images[i]) == (int)&testing_set->labels[i]) {
       total_correct++;
     };
   }
