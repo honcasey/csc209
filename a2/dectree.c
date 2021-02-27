@@ -39,19 +39,36 @@ Dataset *load_dataset(const char *filename) {
     }
 
     Dataset *d = (Dataset*)malloc(sizeof(Dataset));
-    fread(&d->num_items, 4, 1, data_file); // reading num of images/labels in data_file
-        // put into while loop and return error for fread?
+    if (d == NULL) {
+        perror("malloc");
+        exit(1);
+    }
+    int head = fread(&d->num_items, 4, 1, data_file); // reading num of images/labels in data_file
+    if (head != 1) {
+        fprintf(stderr, "reading num_images improperly!\n");
+        exit(1);
+    }
 
-    
-    
-    int i = 0;
     Image* img = (Image*)malloc(sizeof(Image));
+    if (img == NULL) {
+        perror("malloc");
+        exit(1);
+    }
     img->sx = WIDTH;
     img->sy = WIDTH;
+    int i = 0;
 
     while (!feof(data_file)) {
-        fread(&d->labels[i], 1, 1, data_file); // read image's label into Dataset's array of labels
-        fread(&img->data, NUM_PIXELS, 1, data_file); // read image's data into an Image struct
+        int label = fread(&d->labels[i], 1, 1, data_file); // read image's label into Dataset's array of labels
+        if (label != 1) {
+            fprintf(stderr, "label read improperly!\n");
+            exit(1);
+        }
+        int img_data = fread(&img->data, NUM_PIXELS, 1, data_file); // read image's data into an Image struct
+        if (img_data != NUM_PIXELS) {
+            fprintf(stderr, "image data read improperly!\n");
+            exit(1);
+        }
         d->images[i] = *img;
         i++;
     }

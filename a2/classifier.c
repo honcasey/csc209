@@ -44,10 +44,35 @@
 int main(int argc, char *argv[]) {
   int total_correct = 0;
 
-  // TODO
+  if (argc != 3) {
+    fprintf(stderr, "Wrong number of arguments");
+    exit(1);
+  }
+  char *training_file_list = argv[1];
+  char *test_file_list = argv[2];
 
+  Dataset *training_set;
+  Dataset *testing_set;
+
+  printf("Loading training data...\n");
+  training_set = load_dataset(training_file_list);
+
+  printf("Loading testing data...\n");
+  testing_set = load_dataset(test_file_list);
+
+  printf("Datasets loaded, building decision tree...\n");
+  
+  DTNode *tree;
+  tree = build_dec_tree(training_set);
+
+  printf("Decision tree built, calling classify...\n");
+  for (int i = 0; i < testing_set->num_items; i++) {
+    if (dec_tree_classify(tree, &testing_set->images[i]) == &testing_set->labels[i]) {
+      total_correct++;
+    };
+  }
 
   // Print out answer
-  printf("%d\n", total_correct);
+  printf("Total correct = %d\n", total_correct);
   return 0;
 }
