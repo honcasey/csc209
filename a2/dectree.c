@@ -43,7 +43,7 @@ Dataset *load_dataset(const char *filename) {
         perror("malloc");
         exit(1);
     }
-    int head = fread(&d->num_items, 4, 1, data_file); // reading num of images/labels in data_file
+    int head = fread(&d->num_items, sizeof(int), 1, data_file); // reading num of images/labels in data_file
     if (head != 1) {
         fprintf(stderr, "reading num_images improperly!\n");
         exit(1);
@@ -59,12 +59,12 @@ Dataset *load_dataset(const char *filename) {
     int i = 0;
 
     while (!feof(data_file)) {
-        int label = fread(&d->labels[i], 1, 1, data_file); // read image's label into Dataset's array of labels
+        int label = fread(&d->labels[i], sizeof(char), 1, data_file); // read image's label into Dataset's array of labels
         if (label != 1) {
             fprintf(stderr, "label read improperly!\n");
             exit(1);
         }
-        int img_data = fread(&img->data, NUM_PIXELS, 1, data_file); // read image's data into an Image struct
+        int img_data = fread(&img->data, sizeof(char), NUM_PIXELS, data_file); // read image's data into an Image struct
         if (img_data != NUM_PIXELS) {
             fprintf(stderr, "image data read improperly!\n");
             exit(1);
@@ -138,8 +138,29 @@ double gini_impurity(Dataset *data, int M, int *indices, int pixel) {
  */
 void get_most_frequent(Dataset *data, int M, int *indices, int *label, int *freq) {
     // TODO: Set the correct values and return
-    *label = 0;
-    *freq = 0;
+    int i = 0;
+    int most_freq_label = 0;
+    int max_freq = 0;
+    while (i < M) { // for each image in the Dataset
+        int count = 0;
+        for (int j = 0; j < M; j++) {
+            if (data->labels[indices[i]] == data->labels[indices[j]]) {
+                count++;
+            }
+        } 
+        if (count > *freq) { // if current label occurs more frequently then replace it
+            most_freq_label = (int)data->labels[indices[i]];
+            max_freq = count;
+        }
+        if (count == *freq) { // if it has the same frequency, check which one's smaller 
+            if (data->labels[i] < *label) {
+                most_freq_label = (int)data->labels[indices[i]];
+            }
+        }
+        i++;    
+    }
+    *label = most_freq_label;
+    *freq = max_freq;
     return;
 }
 
