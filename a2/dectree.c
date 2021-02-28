@@ -76,6 +76,7 @@ Dataset *load_dataset(const char *filename) {
         img->sx = WIDTH;
         img->sy = WIDTH;
         for (int j = 0; j < NUM_PIXELS; j++) {
+            img->data = malloc(NUM_PIXELS * sizeof(unsigned char));
             int img_data = fread(&img->data[j], sizeof(unsigned char), 1, data_file); // read image's data into an Image struct
             printf("%u ", img->data[j]);
             if (img_data != NUM_PIXELS) {
