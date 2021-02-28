@@ -49,13 +49,19 @@ Dataset *load_dataset(const char *filename) {
         exit(1);
     }
 
-    Image* img = (Image*)malloc(sizeof(Image));
-    if (img == NULL) {
+    int num_items = d->num_items;
+    d->images = malloc(num_items * sizeof(Image));
+    if (d->images == NULL) {
         perror("malloc");
         exit(1);
     }
-    img->sx = WIDTH;
-    img->sy = WIDTH;
+
+    d->labels = malloc(num_items * sizeof(unsigned char));
+    if (d->labels == NULL) {
+        perror("malloc");
+        exit(1);
+    }
+
     int i = 0;
 
     while (!feof(data_file)) {
@@ -64,12 +70,20 @@ Dataset *load_dataset(const char *filename) {
             fprintf(stderr, "label read improperly!\n");
             exit(1);
         }
+        Image* img = (Image*)malloc(sizeof(Image));
+        if (img == NULL) {
+            perror("malloc");
+            exit(1);
+        }
+        img->sx = WIDTH;
+        img->sy = WIDTH;
         int img_data = fread(&img->data, sizeof(char), NUM_PIXELS, data_file); // read image's data into an Image struct
         if (img_data != NUM_PIXELS) {
             fprintf(stderr, "image data read improperly!\n");
             exit(1);
         }
         d->images[i] = *img;
+        free(img);
         i++;
     }
 
@@ -79,7 +93,6 @@ Dataset *load_dataset(const char *filename) {
         exit(1);
     }
 
-    free(img);
     return d;
 }
 
