@@ -38,7 +38,8 @@ Dataset *load_dataset(const char *filename) {
         exit(1);
     }
 
-    Dataset *d = (Dataset*)malloc(sizeof(Dataset));
+    Dataset *d;
+    d = malloc(sizeof(Dataset)); //sizeof(Dataset) = 24 NEED TO INITIALIZE the Dataset first
     if (d == NULL) {
         perror("malloc");
         exit(1);
@@ -59,7 +60,7 @@ Dataset *load_dataset(const char *filename) {
     int i = 0;
 
     while (!feof(data_file)) {
-        int label = fread(&d->labels[i], sizeof(int), 1, data_file); // read image's label into Dataset's array of labels
+        int label = fread(&d->labels[i], sizeof(unsigned char), 1, data_file); // read image's label into Dataset's array of labels -> SEG FAULT
         if (label != 1) {
             fprintf(stderr, "label read improperly!\n");
             exit(1);
