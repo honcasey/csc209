@@ -59,7 +59,7 @@ Dataset *load_dataset(const char *filename) {
     int i = 0;
 
     while (!feof(data_file)) {
-        int label = fread(&d->labels[i], sizeof(char), 1, data_file); // read image's label into Dataset's array of labels
+        int label = fread(&d->labels[i], sizeof(int), 1, data_file); // read image's label into Dataset's array of labels
         if (label != 1) {
             fprintf(stderr, "label read improperly!\n");
             exit(1);
