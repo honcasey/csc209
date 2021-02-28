@@ -81,7 +81,6 @@ Dataset *load_dataset(const char *filename) {
             exit(1);
         }
         d->images[i] = *img;
-        free(img);
     }
 
     int err = fclose(data_file);
@@ -90,6 +89,7 @@ Dataset *load_dataset(const char *filename) {
         exit(1);
     }
 
+    free(img);
     return d;
 }
 
