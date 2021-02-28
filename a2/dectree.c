@@ -75,12 +75,16 @@ Dataset *load_dataset(const char *filename) {
         }
         img->sx = WIDTH;
         img->sy = WIDTH;
-        int img_data = fread(&img->data, sizeof(char), NUM_PIXELS, data_file); // read image's data into an Image struct
-        if (img_data != NUM_PIXELS) {
-            fprintf(stderr, "image data read improperly!\n");
-            exit(1);
+        for (int j = 0; j < NUM_PIXELS; j++) {
+            int img_data = fread(&img->data[j], sizeof(unsigned char), 1, data_file); // read image's data into an Image struct
+            printf("%u ", img->data[j]);
+            if (img_data != NUM_PIXELS) {
+                fprintf(stderr, "image pixel read improperly!\n");
+                exit(1);
+            }
+            d->images[i] = *img;
         }
-        d->images[i] = *img;
+        
         free(img);
     }
 
