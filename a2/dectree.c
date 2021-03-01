@@ -40,7 +40,8 @@ Dataset *load_dataset(const char *filename) {
 
     Dataset *d = malloc(sizeof(Dataset)); //sizeof(Dataset) = 24 NEED TO INITIALIZE the Dataset first
     if (d == NULL) {
-        perror("malloc");
+        //perror("malloc");
+        fprintf(stderr, "dataset malloc wrong\n");
         exit(1);
     }
     int head = fread(&d->num_items, sizeof(int), 1, data_file); // reading num of images/labels in data_file
@@ -52,13 +53,15 @@ Dataset *load_dataset(const char *filename) {
     int num_items = d->num_items;
     d->images = malloc(num_items * sizeof(Image));
     if (d->images == NULL) {
-        perror("malloc");
+        // perror("malloc");
+        fprintf(stderr, "images malloc wrong\n");
         exit(1);
     }
 
     d->labels = malloc(num_items * sizeof(unsigned char));
     if (d->labels == NULL) {
-        perror("malloc");
+        // perror("malloc");
+        fprintf(stderr, "labels malloc wrong\n");
         exit(1);
     }
 
