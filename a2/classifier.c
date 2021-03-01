@@ -48,6 +48,8 @@ int main(int argc, char *argv[]) {
     fprintf(stderr, "Wrong number of arguments");
     exit(1);
   }
+
+  // Parse the command line arguments, call `load_dataset()` appropriately.
   char *training_file_list = argv[1];
   char *test_file_list = argv[2];
 
@@ -62,10 +64,12 @@ int main(int argc, char *argv[]) {
 
   printf("Datasets loaded, building decision tree...\n");
   
+  // Call `make_dec_tree()` to build the decision tree with training data
   DTNode *tree;
   tree = build_dec_tree(training_set);
 
   printf("Decision tree built, calling classify...\n");
+  // For each test image, call `dec_tree_classify()` and compare the real label with the predicted label
   for (int i = 0; i < testing_set->num_items; i++) {
     if (dec_tree_classify(tree, &testing_set->images[i]) == testing_set->labels[i]) {
       total_correct++;
@@ -74,5 +78,11 @@ int main(int argc, char *argv[]) {
 
   // Print out answer
   printf("Total correct = %d\n", total_correct);
+
+  // Free all the data dynamically allocated and exit.
+  free_dec_tree(tree); 
+  free_dataset(testing_set);
+  free_dataset(training_set);
+
   return 0;
 }
