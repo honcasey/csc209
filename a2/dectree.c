@@ -356,6 +356,8 @@ int dec_tree_classify(DTNode *root, Image *img) {
  */
 void free_dec_tree(DTNode *node) {
     // TODO: Free the decision tree
+    free(node->left);
+    free(node->right);
     free(node);
     return;
 }
@@ -365,6 +367,8 @@ void free_dec_tree(DTNode *node) {
  */
 void free_dataset(Dataset *data) {
     // TODO: Free dataset (Same as A1)
+    free(data->images);
+    free(data->labels);
     free(data);
     return;
 }
