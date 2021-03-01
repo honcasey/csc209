@@ -88,7 +88,7 @@ Dataset *load_dataset(const char *filename) {
             }
             d->images[i] = *img;
         }
-        
+        free(img->data);
         free(img);
     }
 
