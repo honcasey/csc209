@@ -337,17 +337,15 @@ DTNode *build_dec_tree(Dataset *data) {
  */
 int dec_tree_classify(DTNode *root, Image *img) {
     // TODO: Return the correct label
-    for (int pixel = 0; pixel < NUM_PIXELS; pixel++) {
-        if (root->left == NULL && root->right == NULL) { // if at a leaf
-            return root->classification;
+    if (root->left == NULL && root->right == NULL) { // if at a leaf
+        return root->classification;
+    }
+    else {
+        if (img->data[root->pixel] < 128) {
+            return dec_tree_classify(root->left, img);
         }
         else {
-            if (img->data[pixel] == 0) {
-                return dec_tree_classify(root->left, img);
-            }
-            if (img->data[pixel] == 255) {
-                return dec_tree_classify(root->right, img);
-            }
+            return dec_tree_classify(root->right, img);
         }
     }
     return -1;
