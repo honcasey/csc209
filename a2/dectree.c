@@ -82,7 +82,6 @@ Dataset *load_dataset(const char *filename) {
                 exit(1);
             }
             int img_data = fread(&img->data[pixel], sizeof(unsigned char), 1, data_file); // read image's data into an Image struct
-            printf("%u ", img->data[pixel]);
             if (img_data != 1) {
                 fprintf(stderr, "image pixel read improperly!\n");
                 exit(1);
