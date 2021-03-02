@@ -199,7 +199,7 @@ void get_most_frequent(Dataset *data, int M, int *indices, int *label, int *freq
 int find_best_split(Dataset *data, int M, int *indices) {
     // TODO: Return the correct pixel
     int curr_pixel = 0;
-    double min_gini = 0.0;
+    double min_gini = INFINITY;
 
     for (int img = 0; img < M; img++) {
         for (int pixel = 0; pixel < NUM_PIXELS; pixel++) {
@@ -243,7 +243,15 @@ DTNode *build_subtree(Dataset *data, int M, int *indices) {
     // TODO: Construct and return the tree
     // Compute ratio of most frequent image in indices, do not split if the ration is greater than THRESHOLD_RATIO
     int *label = (int*)malloc(sizeof(int));
+    if (label == NULL) {
+            perror("malloc");
+            exit(1);
+        } 
     int *freq = (int*)malloc(sizeof(int));
+    if (freq == NULL) {
+            perror("malloc");
+            exit(1);
+        } 
     get_most_frequent(data, M, indices, label, freq);
     int frequency = *freq;
     //double freqd = (double)*freq;
@@ -310,6 +318,8 @@ DTNode *build_subtree(Dataset *data, int M, int *indices) {
 
         free(right_indices);
         free(left_indices);
+        free(freq);
+        free(label);
 
         return new_node;
     }
