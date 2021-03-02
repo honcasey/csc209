@@ -255,7 +255,6 @@ DTNode *build_subtree(Dataset *data, int M, int *indices) {
         } 
     get_most_frequent(data, M, indices, label, freq);
     int frequency = *freq;
-    //double freqd = (double)*freq;
     double ratio = (double)frequency/(double)M;
     if (ratio >= THRESHOLD_RATIO) {
         // don't split, make it a leaf that outputs the same class
@@ -268,6 +267,9 @@ DTNode *build_subtree(Dataset *data, int M, int *indices) {
         leaf->pixel = -1;
         leaf->left = NULL;
         leaf->right = NULL;
+
+        free(label);
+        free(freq);
         return leaf;
     }
     else { // ratio is less than threshold, so split 
@@ -323,10 +325,10 @@ DTNode *build_subtree(Dataset *data, int M, int *indices) {
         new_node->left = build_subtree(data, left_len, left_indices);
         new_node->right = build_subtree(data, right_len, right_indices);
 
-        free(right_indices);
-        free(left_indices);
-        free(freq);
-        free(label);
+        //free(right_indices);
+        //free(left_indices);
+        //free(freq);
+        //free(label);
 
         return new_node;
     }
