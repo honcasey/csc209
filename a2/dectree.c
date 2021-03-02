@@ -278,7 +278,7 @@ DTNode *build_subtree(Dataset *data, int M, int *indices) {
         int left_len = 0;
         int right_len = 0;
         for (int i = 0; i < M; i++) { // iterate through indices
-            if (data->images[i].data[pixel] < 128) { // goes in left subtree
+            if (data->images[indices[i]].data[pixel] < 128) { // goes in left subtree
                 left_len++;
             }
             else { right_len++; } // if geq 128, goes in right subtree
@@ -296,7 +296,7 @@ DTNode *build_subtree(Dataset *data, int M, int *indices) {
         for (int j = 0; j < M; j++) {
             int left = 0;
             int right = 0;
-            if (data->images[j].data[pixel] < 128) {
+            if (data->images[indices[j]].data[pixel] < 128) {
                 left_indices[left] = indices[j];
                 left++;
             }
