@@ -68,10 +68,10 @@ Dataset *load_dataset(const char *filename) {
     for (int i = 0; i < num_items; i++) {
         int label = fread(&d->labels[i], sizeof(unsigned char), 1, data_file); // read image's label into Dataset's array of labels -> SEG FAULT
         if (label != 1) {
-            fprintf(stderr, "label read improperly!\n");
+            fprintf(stderr, "label read improperly\n");
             exit(1);
         }
-        Image* img = malloc(sizeof(Image));
+        Image* img = malloc(sizeof(Image)); // allocate's space for an Image struct 
         if (img == NULL) {
             // perror("malloc");
             fprintf(stderr, "img malloc wrong\n");
@@ -80,7 +80,7 @@ Dataset *load_dataset(const char *filename) {
         img->sx = WIDTH;
         img->sy = WIDTH;
         for (int pixel = 0; pixel < NUM_PIXELS; pixel++) {
-            img->data = malloc(NUM_PIXELS * sizeof(unsigned char));
+            img->data = malloc(NUM_PIXELS * sizeof(unsigned char)); // allocate memory for array of size num_pixels for image's data 
             if (img->data == NULL) {
                 // perror("malloc");
                 fprintf(stderr, "img->data malloc wrong\n");
@@ -91,10 +91,10 @@ Dataset *load_dataset(const char *filename) {
                 fprintf(stderr, "image pixel read improperly!\n");
                 exit(1);
             }
-            d->images[i] = *img;
-            //free(img->data);
-            //free(img);
+            //free(img->data[pixel]);
         }
+        d->images[i] = *img;
+        //free(img);
     }
 
     int err = fclose(data_file);
