@@ -87,6 +87,7 @@ Dataset *load_dataset(const char *filename) {
             }
         for (int pixel = 0; pixel < NUM_PIXELS; pixel++) { 
             int img_data = fread(&img->data[pixel], sizeof(unsigned char), 1, data_file); // read image's data into an Image struct
+            printf("%d ", img->data[pixel]);
             if (img_data != 1) {
                 fprintf(stderr, "image pixel read improperly!\n");
                 exit(1);
@@ -164,7 +165,7 @@ void get_most_frequent(Dataset *data, int M, int *indices, int *label, int *freq
     //int most_freq_label = 0;
     //int max_freq = 0;
     for (int i = 0; i < M; i++) { // for each label in the Dataset
-        int count = 1;
+        int count = 0;
         for (int j = 1; j < M; j++) {
             if (data->labels[indices[i]] == data->labels[indices[j]]) {
                 count++;
@@ -256,7 +257,7 @@ DTNode *build_subtree(Dataset *data, int M, int *indices) {
     get_most_frequent(data, M, indices, label, freq);
     int frequency = *freq;
     double ratio = (double)frequency/(double)M;
-    if (ratio >= THRESHOLD_RATIO) {
+    if (ratio > THRESHOLD_RATIO) {
         // don't split, make it a leaf that outputs the same class
         DTNode *leaf = malloc(sizeof(DTNode));
         if (leaf == NULL) {
