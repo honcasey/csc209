@@ -94,7 +94,7 @@ Dataset *load_dataset(const char *filename) {
             //free(img->data[pixel]);
         }
         d->images[i] = *img;
-        free(img->data); // free Image struct once it's been added to the Dataset
+        // free(img->data); // free Image struct once it's been added to the Dataset
         free(img); 
     }
     // TO-DO: ADD FREES HERE?
