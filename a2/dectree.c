@@ -161,8 +161,8 @@ double gini_impurity(Dataset *data, int M, int *indices, int pixel) {
  */
 void get_most_frequent(Dataset *data, int M, int *indices, int *label, int *freq) {
     // TODO: Set the correct values and return
-    int most_freq_label = 0;
-    int max_freq = 0;
+    //int most_freq_label = 0;
+    //int max_freq = 0;
     for (int i = 0; i < M; i++) { // for each label in the Dataset
         int count = 1;
         for (int j = 0; j < M; j++) {
@@ -170,18 +170,18 @@ void get_most_frequent(Dataset *data, int M, int *indices, int *label, int *freq
                 count++;
             }
         } 
-        if (count > max_freq) { // if current label occurs more frequently then replace it
-            most_freq_label = (int)data->labels[indices[i]];
-            max_freq = count;
+        if (count > *freq) { // if current label occurs more frequently then replace it
+            *label = (int)data->labels[indices[i]];
+            *freq = count;
         }
-        if (count == max_freq) { // if it has the same frequency, check which one's smaller 
-            if (data->labels[indices[i]] < most_freq_label) {
-                most_freq_label = (int)data->labels[indices[i]];
+        if (count == *freq) { // if it has the same frequency, check which one's smaller 
+            if (data->labels[indices[i]] < *label) {
+                *label = (int)data->labels[indices[i]];
             }
         }
     }
-    label = &most_freq_label;
-    freq = &max_freq;
+    //label = &most_freq_label;
+    //freq = &max_freq;
     return;
 }
 
