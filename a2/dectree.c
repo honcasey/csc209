@@ -243,12 +243,14 @@ DTNode *build_subtree(Dataset *data, int M, int *indices) {
     // Compute ratio of most frequent image in indices, do not split if the ration is greater than THRESHOLD_RATIO
     int *label = (int*)malloc(sizeof(int));
     if (label == NULL) {
-            perror("malloc");
+            //perror("malloc");
+            fprintf(stderr, "subtree label malloc wrong\n");
             exit(1);
         } 
     int *freq = (int*)malloc(sizeof(int));
     if (freq == NULL) {
-            perror("malloc");
+            //perror("malloc");
+            fprintf(stderr, "subtree freq malloc wrong\n");
             exit(1);
         } 
     get_most_frequent(data, M, indices, label, freq);
@@ -258,7 +260,8 @@ DTNode *build_subtree(Dataset *data, int M, int *indices) {
         // don't split, make it a leaf that outputs the same class
         DTNode *leaf = malloc(sizeof(DTNode));
         if (leaf == NULL) {
-            perror("malloc");
+            // perror("malloc");
+            fprintf(stderr, "leaf malloc wrong\n");
             exit(1);
         } 
         leaf->classification = *label;
@@ -289,12 +292,14 @@ DTNode *build_subtree(Dataset *data, int M, int *indices) {
         }
         int *left_indices = malloc(left_len * sizeof(int));
         if (left_indices == NULL) {
-            perror("malloc");
+            //perror("malloc");
+            fprintf(stderr, "left indices malloc wrong\n");
             exit(1);
         }
         int *right_indices = malloc(right_len * sizeof(int));
         if (right_indices == NULL) {
-            perror("malloc");
+            //perror("malloc");
+            fprintf(stderr, "right indices malloc wrong\n");
             exit(1);
         }
         int left = 0;
@@ -315,7 +320,8 @@ DTNode *build_subtree(Dataset *data, int M, int *indices) {
         //- Otherwise, set `pixel` and `left`/`right` nodes (using build_subtree recursively). 
         DTNode *new_node = malloc(sizeof(DTNode));
         if (new_node == NULL) {
-            perror("malloc");
+            fprintf(stderr, "new node malloc wrong\n");
+            //perror("malloc");
             exit(1);
         }
         new_node->pixel = pixel;
@@ -342,7 +348,8 @@ DTNode *build_dec_tree(Dataset *data) {
     // HINT: Make sure you free any data that is not needed anymore
     int *indices = malloc(data->num_items * sizeof(int));
     if (indices == NULL) {
-        perror("malloc");
+        fprintf(stderr, "build_dec indices malloc wrong\n");
+        //perror("malloc");
         exit(1);
     }
 
@@ -352,7 +359,8 @@ DTNode *build_dec_tree(Dataset *data) {
 
     DTNode *tree = malloc(sizeof(DTNode));
     if (tree == NULL) {
-        perror("malloc");
+        fprintf(stderr, "build_dec tree malloc wrong\n");
+        // perror("malloc");
         exit(1);
     }
 
