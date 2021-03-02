@@ -181,8 +181,6 @@ void get_most_frequent(Dataset *data, int M, int *indices, int *label, int *freq
             }
         }
     }
-    //label = &most_freq_label;
-    //freq = &max_freq;
     return;
 }
 
