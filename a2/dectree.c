@@ -79,13 +79,13 @@ Dataset *load_dataset(const char *filename) {
         }
         img->sx = WIDTH;
         img->sy = WIDTH;
-        for (int pixel = 0; pixel < NUM_PIXELS; pixel++) {
-            img->data = malloc(NUM_PIXELS * sizeof(unsigned char)); // allocate memory for array of size num_pixels for image's data 
-            if (img->data == NULL) {
+        img->data = malloc(NUM_PIXELS * sizeof(unsigned char)); // allocate memory for array of size num_pixels for image's data 
+        if (img->data == NULL) {
                 // perror("malloc");
                 fprintf(stderr, "img->data malloc wrong\n");
                 exit(1);
             }
+        for (int pixel = 0; pixel < NUM_PIXELS; pixel++) { 
             int img_data = fread(&img->data[pixel], sizeof(unsigned char), 1, data_file); // read image's data into an Image struct
             if (img_data != 1) {
                 fprintf(stderr, "image pixel read improperly!\n");
