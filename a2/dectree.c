@@ -205,7 +205,7 @@ int find_best_split(Dataset *data, int M, int *indices) {
     for (int img = 0; img < M; img++) {
         for (unsigned int pixel = 0; pixel < NUM_PIXELS; pixel++) {
             double temp_gini = gini_impurity(data, M, indices, pixel); //compute gini impurity of current pixel
-            //if (!isnan(temp_gini)) { //check for NAN
+            if (!isnan(temp_gini)) { //check for NAN
                 if (temp_gini < min_gini) { // if newly calculated impurity is less than the current minimum,
                     min_gini = temp_gini; // replace
                     curr_pixel = pixel;
@@ -215,7 +215,7 @@ int find_best_split(Dataset *data, int M, int *indices) {
                         curr_pixel = pixel; // replace curr pixel with smaller
                     }
                 }
-            //}
+            }
         }
     }
     return curr_pixel;
@@ -327,13 +327,18 @@ DTNode *build_subtree(Dataset *data, int M, int *indices) {
             //perror("malloc");
             exit(1);
         }
+
         new_node->pixel = pixel;
         new_node->classification = -1;
+
+        free(freq);
+        free(label);
+
         new_node->left = build_subtree(data, left_len, left_indices);
         new_node->right = build_subtree(data, right_len, right_indices);
 
-        //free(right_indices);
-        //free(left_indices);
+        free(right_indices);
+        free(left_indices);
 
         return new_node;
     }
@@ -405,8 +410,8 @@ void free_dec_tree(DTNode *node) {
  */
 void free_dataset(Dataset *data) {
     // TODO: Free dataset (Same as A1)
-    free(data->images);
     free(data->labels);
+    free(data->images);
     free(data);
     return;
 }
