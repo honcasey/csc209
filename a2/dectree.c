@@ -242,8 +242,8 @@ int find_best_split(Dataset *data, int M, int *indices) {
 DTNode *build_subtree(Dataset *data, int M, int *indices) {
     // TODO: Construct and return the tree
     // Compute ratio of most frequent image in indices, do not split if the ration is greater than THRESHOLD_RATIO
-    int *label;
-    int *freq;
+    int *label = NULL;
+    int *freq = NULL;
     get_most_frequent(data, M, indices, label, freq);
     
     double freqd = (double)*freq;
