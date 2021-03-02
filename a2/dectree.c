@@ -165,7 +165,7 @@ void get_most_frequent(Dataset *data, int M, int *indices, int *label, int *freq
     //int max_freq = 0;
     for (int i = 0; i < M; i++) { // for each label in the Dataset
         int count = 1;
-        for (int j = 0; j < M; j++) {
+        for (int j = 1; j < M; j++) {
             if (data->labels[indices[i]] == data->labels[indices[j]]) {
                 count++;
             }
@@ -293,9 +293,9 @@ DTNode *build_subtree(Dataset *data, int M, int *indices) {
             perror("malloc");
             exit(1);
         }
+        int left = 0;
+        int right = 0;
         for (int j = 0; j < M; j++) {
-            int left = 0;
-            int right = 0;
             if (data->images[indices[j]].data[pixel] < 128) {
                 left_indices[left] = indices[j];
                 left++;
