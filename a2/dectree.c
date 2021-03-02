@@ -204,7 +204,7 @@ int find_best_split(Dataset *data, int M, int *indices) {
     for (int img = 0; img < M; img++) {
         for (int pixel = 0; pixel < NUM_PIXELS; pixel++) {
             double temp_gini = gini_impurity(data, M, indices, pixel); //compute gini impurity of current pixel
-            if (temp_gini != NAN) { //check for NAN
+            if (!isnan(temp_gini)) { //check for NAN
                 if (temp_gini < min_gini) { // if newly calculated impurity is less than the current minimum,
                     min_gini = temp_gini; // replace
                 }
