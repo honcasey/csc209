@@ -199,7 +199,7 @@ void get_most_frequent(Dataset *data, int M, int *indices, int *label, int *freq
 int find_best_split(Dataset *data, int M, int *indices) {
     // TODO: Return the correct pixel
     int curr_pixel = 0;
-    double min_gini = INFINITY;
+    float min_gini = INFINITY;
 
     for (int img = 0; img < M; img++) {
         for (int pixel = 0; pixel < NUM_PIXELS; pixel++) {
@@ -207,6 +207,7 @@ int find_best_split(Dataset *data, int M, int *indices) {
             if (!isnan(temp_gini)) { //check for NAN
                 if (temp_gini < min_gini) { // if newly calculated impurity is less than the current minimum,
                     min_gini = temp_gini; // replace
+                    curr_pixel = pixel;
                 }
                 if (temp_gini == min_gini) { // if it's the same as the current minimum
                     if (pixel < curr_pixel) { // check which pixel is smaller
