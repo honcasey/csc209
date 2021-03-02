@@ -246,7 +246,7 @@ DTNode *build_subtree(Dataset *data, int M, int *indices) {
     int *freq = 0;
     get_most_frequent(data, M, indices, label, freq);
     
-    double ratio = (double)*freq / M;
+    double ratio = (double)*freq/(double)M;
     if (ratio >= THRESHOLD_RATIO) {
         // don't split, make it a leaf that outputs the same class
         DTNode *leaf = malloc(sizeof(DTNode));
