@@ -272,6 +272,10 @@ DTNode *build_subtree(Dataset *data, int M, int *indices) {
     }
     else { // ratio is less than threshold, so split 
         int pixel = find_best_split(data, M, indices);
+        if (pixel < 0) {
+            fprintf(stderr, "pixel is wrong");
+            exit(1);
+        }
 
         // Split the data based on whether pixel is less than 128, allocate arrays of indices of training images 
         // and populate them with the subset of indices from M that correspond to which side of the split they are on
