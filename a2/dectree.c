@@ -180,8 +180,8 @@ void get_most_frequent(Dataset *data, int M, int *indices, int *label, int *freq
             }
         }
     }
-    *label = most_freq_label;
-    *freq = max_freq;
+    label = &most_freq_label;
+    freq = &max_freq;
     return;
 }
 
@@ -323,14 +323,21 @@ DTNode *build_dec_tree(Dataset *data) {
     // TODO: Set up `indices` array, call `build_subtree` and return the tree.
     // HINT: Make sure you free any data that is not needed anymore
     int *indices = malloc(data->num_items * sizeof(int));
+    if (indices == NULL) {
+        perror("malloc");
+        exit(1);
+    }
+
     for (int i = 0; i < data->num_items; i++) {
         indices[i] = i;
     }
+
     DTNode *tree = malloc(sizeof(DTNode));
     if (tree == NULL) {
         perror("malloc");
         exit(1);
     }
+
     tree = build_subtree(data, data->num_items, indices);
     free(indices);
     return tree;
