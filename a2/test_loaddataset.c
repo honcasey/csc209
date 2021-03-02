@@ -11,6 +11,6 @@ int main(int argc, char **argv) {
     }
 
     data = load_dataset(argv[1]);
-    printf("loaded %ld items \n", sizeof(data->images));
+    printf("loaded %d items \n", data->num_items);
     return 0;
 }
