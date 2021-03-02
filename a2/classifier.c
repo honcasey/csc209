@@ -45,7 +45,7 @@ int main(int argc, char *argv[]) {
   int total_correct = 0;
 
   if (argc != 3) {
-    fprintf(stderr, "Wrong number of arguments");
+    fprintf(stderr, "Wrong number of arguments\n");
     exit(1);
   }
 
