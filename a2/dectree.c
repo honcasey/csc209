@@ -163,6 +163,8 @@ void get_most_frequent(Dataset *data, int M, int *indices, int *label, int *freq
     // TODO: Set the correct values and return
     //int most_freq_label = 0;
     //int max_freq = 0;
+    *label = 0;
+    *freq = 0;
     for (int i = 0; i < M; i++) { // for each label in the Dataset
         int count = 0;
         for (int j = 1; j < M; j++) {
@@ -290,7 +292,7 @@ DTNode *build_subtree(Dataset *data, int M, int *indices) {
             }
             else { right_len++; } // if geq 128, goes in right subtree
         }
-        int *left_indices = malloc(left_len * sizeof(int));
+int *left_indices = malloc(left_len * sizeof(int));
         if (left_indices == NULL) {
             //perror("malloc");
             fprintf(stderr, "left indices malloc wrong\n");
