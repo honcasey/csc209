@@ -94,9 +94,10 @@ Dataset *load_dataset(const char *filename) {
             //free(img->data[pixel]);
         }
         d->images[i] = *img;
-        //free(img);
+        free(img->data); // free Image struct once it's been added to the Dataset
+        free(img); 
     }
-
+    // TO-DO: ADD FREES HERE?
     int err = fclose(data_file);
     if (err != 0) {
         perror("fclose");
@@ -271,8 +272,8 @@ DTNode *build_subtree(Dataset *data, int M, int *indices) {
         leaf->left = NULL;
         leaf->right = NULL;
 
-        free(label);
         free(freq);
+        free(label);
         return leaf;
     }
     else { // ratio is less than threshold, so split 
@@ -292,7 +293,7 @@ DTNode *build_subtree(Dataset *data, int M, int *indices) {
             }
             else { right_len++; } // if geq 128, goes in right subtree
         }
-int *left_indices = malloc(left_len * sizeof(int));
+        int *left_indices = malloc(left_len * sizeof(int));
         if (left_indices == NULL) {
             //perror("malloc");
             fprintf(stderr, "left indices malloc wrong\n");
@@ -333,8 +334,6 @@ int *left_indices = malloc(left_len * sizeof(int));
 
         //free(right_indices);
         //free(left_indices);
-        //free(freq);
-        //free(label);
 
         return new_node;
     }
