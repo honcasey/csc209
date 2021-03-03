@@ -190,7 +190,7 @@ void get_most_frequent(Dataset *data, int M, int *indices, int *label, int *freq
 int find_best_split(Dataset *data, int M, int *indices) {
     // TODO: Return the correct pixel
     int curr_pixel = -1;
-    float min_gini = INFINITY;
+    double min_gini = INFINITY;
 
     for (int pixel = 0; pixel < NUM_PIXELS; pixel++) {
         double temp_gini = gini_impurity(data, M, indices, pixel); //compute gini impurity of current pixel
@@ -243,7 +243,7 @@ DTNode *build_subtree(Dataset *data, int M, int *indices) {
     get_most_frequent(data, M, indices, label, freq);
     double ratio = (double)*freq/(double)M;
     
-    if (ratio >= THRESHOLD_RATIO) {
+    if (ratio > THRESHOLD_RATIO) {
         // don't split, make it a leaf that outputs the same class
         DTNode *leaf = malloc(sizeof(DTNode));
         if (leaf == NULL) {
