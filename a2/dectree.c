@@ -29,16 +29,14 @@
  * Use the NUM_PIXELS and WIDTH constants defined in dectree.h
  */
 Dataset *load_dataset(const char *filename) {
-    // TODO: Allocate data, read image data / labels, return
     FILE *data_file;
-
     data_file = fopen(filename, "rb");
     if (data_file == NULL) {
         perror("fopen");
         exit(1);
     }
 
-    Dataset *d = malloc(sizeof(Dataset)); //sizeof(Dataset) = 24 NEED TO INITIALIZE the Dataset first
+    Dataset *d = malloc(sizeof(Dataset)); 
     if (d == NULL) {
         //perror("malloc");
         fprintf(stderr, "dataset malloc wrong\n");
@@ -50,22 +48,21 @@ Dataset *load_dataset(const char *filename) {
         exit(1);
     }
 
-    int num_items = d->num_items;
-    d->images = malloc(num_items * sizeof(Image));
+    d->images = malloc(d->num_items * sizeof(Image));
     if (d->images == NULL) {
         // perror("malloc");
         fprintf(stderr, "images malloc wrong\n");
         exit(1);
     }
 
-    d->labels = malloc(num_items * sizeof(unsigned char));
+    d->labels = malloc(d->num_items * sizeof(unsigned char));
     if (d->labels == NULL) {
         // perror("malloc");
         fprintf(stderr, "labels malloc wrong\n");
         exit(1);
     }
 
-    for (int i = 0; i < num_items; i++) {
+    for (int i = 0; i < d->num_items; i++) {
         int label = fread(&d->labels[i], sizeof(unsigned char), 1, data_file); // read image's label into Dataset's array of labels -> SEG FAULT
         if (label != 1) {
             fprintf(stderr, "label read improperly\n");
@@ -91,19 +88,15 @@ Dataset *load_dataset(const char *filename) {
                 fprintf(stderr, "image pixel read improperly!\n");
                 exit(1);
             }
-            //free(img->data[pixel]);
         }
         d->images[i] = *img;
-        //free(img->data); // free Image struct once it's been added to the Dataset
         free(img); 
     }
-    // TO-DO: ADD FREES HERE?
     int err = fclose(data_file);
     if (err != 0) {
         perror("fclose");
         exit(1);
     }
-
     return d;
 }
 
@@ -161,9 +154,6 @@ double gini_impurity(Dataset *data, int M, int *indices, int pixel) {
  * If multiple labels have the same maximal frequency, return the smallest one.
  */
 void get_most_frequent(Dataset *data, int M, int *indices, int *label, int *freq) {
-    // TODO: Set the correct values and return
-    //int most_freq_label = 0;
-    //int max_freq = 0;
     *label = 0;
     *freq = 0;
     for (int i = 0; i < M; i++) { // for each label in the Dataset
@@ -202,7 +192,7 @@ int find_best_split(Dataset *data, int M, int *indices) {
     int curr_pixel = -1;
     float min_gini = INFINITY;
 
-    for (unsigned int pixel = 0; pixel < NUM_PIXELS; pixel++) {
+    for (int pixel = 0; pixel < NUM_PIXELS; pixel++) {
         double temp_gini = gini_impurity(data, M, indices, pixel); //compute gini impurity of current pixel
         if (!isnan(temp_gini)) { //check for NAN
             if (temp_gini < min_gini) { // if newly calculated impurity is less than the current minimum,
@@ -251,9 +241,9 @@ DTNode *build_subtree(Dataset *data, int M, int *indices) {
             exit(1);
         } 
     get_most_frequent(data, M, indices, label, freq);
-    //double frequency = (double)*freq;
     double ratio = (double)*freq/(double)M;
-    if (ratio > THRESHOLD_RATIO) {
+    
+    if (ratio >= THRESHOLD_RATIO) {
         // don't split, make it a leaf that outputs the same class
         DTNode *leaf = malloc(sizeof(DTNode));
         if (leaf == NULL) {
@@ -272,13 +262,6 @@ DTNode *build_subtree(Dataset *data, int M, int *indices) {
     }
     else { // ratio is less than threshold, so split 
         int pixel = find_best_split(data, M, indices);
-        //if (pixel < 0) {
-        //    fprintf(stderr, "pixel is wrong");
-        //    exit(1);
-        //}
-
-        // Split the data based on whether pixel is less than 128, allocate arrays of indices of training images 
-        // and populate them with the subset of indices from M that correspond to which side of the split they are on
         int left_len = 0;
         int right_len = 0;
         for (int i = 0; i < M; i++) { // iterate through indices
@@ -312,9 +295,6 @@ DTNode *build_subtree(Dataset *data, int M, int *indices) {
             }
         }
 
-        // Allocate a new node, set the correct values and return
-        // - If it is a leaf node set `classification`, and both children = NULL.
-        //- Otherwise, set `pixel` and `left`/`right` nodes (using build_subtree recursively). 
         DTNode *new_node = malloc(sizeof(DTNode));
         if (new_node == NULL) {
             fprintf(stderr, "new node malloc wrong\n");
@@ -357,13 +337,6 @@ DTNode *build_dec_tree(Dataset *data) {
         indices[i] = i;
     }
 
-    //DTNode *tree = malloc(sizeof(DTNode) * data->num_items);
-    //if (tree == NULL) {
-    //    fprintf(stderr, "build_dec tree malloc wrong\n");
-    //    // perror("malloc");
-    //    exit(1);
-    //}
-
     DTNode *tree = build_subtree(data, data->num_items, indices);
     free(indices);
     return tree;
@@ -373,7 +346,6 @@ DTNode *build_dec_tree(Dataset *data) {
  * Given a decision tree and an image to classify, return the predicted label.
  */
 int dec_tree_classify(DTNode *root, Image *img) {
-    // TODO: Return the correct label
     if (root->left == NULL && root->right == NULL) { // if at a leaf
         return root->classification;
     }
@@ -392,15 +364,12 @@ int dec_tree_classify(DTNode *root, Image *img) {
  * This function frees the Decision tree.
  */
 void free_dec_tree(DTNode *node) {
-    // TODO: Free the decision tree
     if (node->left != NULL) {
         free_dec_tree(node->left);
     }
     if (node->right != NULL) {
         free_dec_tree(node->right);
     }
-    //free(node->left);
-    //free(node->right);
     free(node);
     return;
 }
@@ -409,7 +378,6 @@ void free_dec_tree(DTNode *node) {
  * Free all the allocated memory for the dataset
  */
 void free_dataset(Dataset *data) {
-    // TODO: Free dataset (Same as A1)
     free(data->labels);
     for (int i = 0; i < data->num_items; i++) {
         free(data->images[i].data);
