@@ -167,7 +167,7 @@ void get_most_frequent(Dataset *data, int M, int *indices, int *label, int *freq
     *label = 0;
     *freq = 0;
     for (int i = 0; i < M; i++) { // for each label in the Dataset
-        int count = 0;
+        int count = 1;
         for (int j = 1; j < M; j++) {
             if (data->labels[indices[i]] == data->labels[indices[j]]) {
                 count++;
@@ -272,9 +272,9 @@ DTNode *build_subtree(Dataset *data, int M, int *indices) {
         leaf->left = NULL;
         leaf->right = NULL;
 
+        free(indices);
         free(freq);
         free(label);
-        free(indices);
         return leaf;
     }
     else { // ratio is less than threshold, so split 
