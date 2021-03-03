@@ -154,35 +154,19 @@ double gini_impurity(Dataset *data, int M, int *indices, int pixel) {
  * If multiple labels have the same maximal frequency, return the smallest one.
  */
 void get_most_frequent(Dataset *data, int M, int *indices, int *label, int *freq) {
-    // *label = -1;
-    // *freq = -1;
-    // for (int i = 0; i < M; i++) { // for each label in the Dataset
-    //     int count = 1;
-    //     for (int j = 1; j < M; j++) {
-    //         if (data->labels[indices[i]] == data->labels[indices[j]]) {
-    //             count++;
-    //         }
-    //     } 
-    //     if (count > *freq) { // if current label occurs more frequently then replace it
-    //         *label = (int)data->labels[indices[i]];
-    //         *freq = count;
-    //     }
-    // }
-    // return;
-    int label_count[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    int labels[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; // array of counts for each label from 0 to 9
     for (int i = 0; i < M; i++) {
-        label_count[data->labels[indices[i]]]++;
+        int temp_label = data->labels[indices[i]];
+        labels[temp_label]++;
     }
-    int most_label = -1;
-    int most_freq = -1;
-    for (int j = 0; j < 10; j++) {
-        if (label_count[j] > most_freq) {
-            most_label = j;
-            most_freq = label_count[j];
+    *label = -1;
+    *freq = -1;
+    for (int j = 0; j < 10; j++) { // for each label from 0 to 9
+        if (labels[j] > *freq) { // if curr label occurs more than current most frequent label's frequency
+            *label = j;
+            *freq = labels[j];
         }
     }
-    *label = most_label;
-    *freq = most_freq;
     return;
 }
 
@@ -198,7 +182,6 @@ void get_most_frequent(Dataset *data, int M, int *indices, int *label, int *freq
  * If multiple pixels have the same minimal Gini impurity, return the smallest.
  */
 int find_best_split(Dataset *data, int M, int *indices) {
-    // TODO: Return the correct pixel
     int curr_pixel = -1;
     double min_gini = INFINITY;
 
@@ -235,8 +218,6 @@ int find_best_split(Dataset *data, int M, int *indices) {
  *         (using build_subtree recursively). 
  */
 DTNode *build_subtree(Dataset *data, int M, int *indices) {
-    // TODO: Construct and return the tree
-    // Compute ratio of most frequent image in indices, do not split if the ration is greater than THRESHOLD_RATIO
     int *label = (int*)malloc(sizeof(int));
     if (label == NULL) {
             //perror("malloc");
@@ -333,8 +314,6 @@ DTNode *build_subtree(Dataset *data, int M, int *indices) {
  * `build_subtree()` with the correct parameters.
  */
 DTNode *build_dec_tree(Dataset *data) {
-    // TODO: Set up `indices` array, call `build_subtree` and return the tree.
-    // HINT: Make sure you free any data that is not needed anymore
     int *indices = malloc(data->num_items * sizeof(int));
     if (indices == NULL) {
         fprintf(stderr, "build_dec indices malloc wrong\n");
