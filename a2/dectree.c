@@ -94,7 +94,7 @@ Dataset *load_dataset(const char *filename) {
             //free(img->data[pixel]);
         }
         d->images[i] = *img;
-        // free(img->data); // free Image struct once it's been added to the Dataset
+        free(img->data); // free Image struct once it's been added to the Dataset
         free(img); 
     }
     // TO-DO: ADD FREES HERE?
@@ -338,8 +338,8 @@ DTNode *build_subtree(Dataset *data, int M, int *indices) {
         new_node->left = build_subtree(data, left_len, left_indices);
         new_node->right = build_subtree(data, right_len, right_indices);
 
-        free(right_indices);
-        free(left_indices);
+        // free(right_indices);
+        // free(left_indices);
         return new_node;
     }
 }
@@ -405,8 +405,8 @@ void free_dec_tree(DTNode *node) {
     if (node->right != NULL) {
         free_dec_tree(node->right);
     }
-    free(node->left);
-    free(node->right);
+    //free(node->left);
+    //free(node->right);
     free(node);
     return;
 }
