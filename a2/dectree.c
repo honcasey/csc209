@@ -211,7 +211,7 @@ int find_best_split(Dataset *data, int M, int *indices) {
             }
         }
     }
-    
+
     return curr_pixel;
 }
 
@@ -411,6 +411,9 @@ void free_dec_tree(DTNode *node) {
 void free_dataset(Dataset *data) {
     // TODO: Free dataset (Same as A1)
     free(data->labels);
+    for (int i = 0; i < data->num_items; i++) {
+        free(data->images[i].data);
+    }
     free(data->images);
     free(data);
     return;
