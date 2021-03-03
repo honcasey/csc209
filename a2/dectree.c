@@ -266,7 +266,6 @@ DTNode *build_subtree(Dataset *data, int M, int *indices) {
         leaf->left = NULL;
         leaf->right = NULL;
 
-        free(indices);
         free(freq);
         free(label);
         return leaf;
@@ -331,6 +330,9 @@ DTNode *build_subtree(Dataset *data, int M, int *indices) {
 
         new_node->left = build_subtree(data, left_len, left_indices);
         new_node->right = build_subtree(data, right_len, right_indices);
+
+        free(left_indices);
+        free(right_indices);
 
         return new_node;
     }
