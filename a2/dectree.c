@@ -274,6 +274,7 @@ DTNode *build_subtree(Dataset *data, int M, int *indices) {
 
         free(freq);
         free(label);
+        free(indices);
         return leaf;
     }
     else { // ratio is less than threshold, so split 
@@ -339,7 +340,6 @@ DTNode *build_subtree(Dataset *data, int M, int *indices) {
 
         free(right_indices);
         free(left_indices);
-
         return new_node;
     }
 }
