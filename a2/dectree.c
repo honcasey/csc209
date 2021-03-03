@@ -399,6 +399,12 @@ int dec_tree_classify(DTNode *root, Image *img) {
  */
 void free_dec_tree(DTNode *node) {
     // TODO: Free the decision tree
+    if (node->left != NULL) {
+        free_dec_tree(node->left);
+    }
+    if (node->right != NULL) {
+        free_dec_tree(node->right);
+    }
     free(node->left);
     free(node->right);
     free(node);
