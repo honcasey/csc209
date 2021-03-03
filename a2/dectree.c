@@ -94,7 +94,7 @@ Dataset *load_dataset(const char *filename) {
             //free(img->data[pixel]);
         }
         d->images[i] = *img;
-        free(img->data); // free Image struct once it's been added to the Dataset
+        //free(img->data); // free Image struct once it's been added to the Dataset
         free(img); 
     }
     // TO-DO: ADD FREES HERE?
@@ -199,25 +199,24 @@ void get_most_frequent(Dataset *data, int M, int *indices, int *label, int *freq
  */
 int find_best_split(Dataset *data, int M, int *indices) {
     // TODO: Return the correct pixel
-    int curr_pixel = 0;
+    int curr_pixel = -1;
     float min_gini = INFINITY;
 
-    for (int img = 0; img < M; img++) {
-        for (unsigned int pixel = 0; pixel < NUM_PIXELS; pixel++) {
-            double temp_gini = gini_impurity(data, M, indices, pixel); //compute gini impurity of current pixel
-            if (!isnan(temp_gini)) { //check for NAN
-                if (temp_gini < min_gini) { // if newly calculated impurity is less than the current minimum,
-                    min_gini = temp_gini; // replace
-                    curr_pixel = pixel;
-                }
-                if (temp_gini == min_gini) { // if it's the same as the current minimum
-                    if (pixel < curr_pixel) { // check which pixel is smaller
-                        curr_pixel = pixel; // replace curr pixel with smaller
-                    }
+    for (unsigned int pixel = 0; pixel < NUM_PIXELS; pixel++) {
+        double temp_gini = gini_impurity(data, M, indices, pixel); //compute gini impurity of current pixel
+        if (!isnan(temp_gini)) { //check for NAN
+            if (temp_gini < min_gini) { // if newly calculated impurity is less than the current minimum,
+                min_gini = temp_gini; // replace
+                curr_pixel = pixel;
+            }
+            if (temp_gini == min_gini) { // if it's the same as the current minimum
+                if (pixel < curr_pixel) { // check which pixel is smaller
+                    curr_pixel = pixel; // replace curr pixel with smaller
                 }
             }
         }
     }
+    
     return curr_pixel;
 }
 
@@ -279,10 +278,10 @@ DTNode *build_subtree(Dataset *data, int M, int *indices) {
     }
     else { // ratio is less than threshold, so split 
         int pixel = find_best_split(data, M, indices);
-        if (pixel < 0) {
-            fprintf(stderr, "pixel is wrong");
-            exit(1);
-        }
+        //if (pixel < 0) {
+        //    fprintf(stderr, "pixel is wrong");
+        //    exit(1);
+        //}
 
         // Split the data based on whether pixel is less than 128, allocate arrays of indices of training images 
         // and populate them with the subset of indices from M that correspond to which side of the split they are on
