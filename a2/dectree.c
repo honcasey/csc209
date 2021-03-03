@@ -355,14 +355,14 @@ DTNode *build_dec_tree(Dataset *data) {
         indices[i] = i;
     }
 
-    DTNode *tree = malloc(sizeof(DTNode) * data->num_items);
-    if (tree == NULL) {
-        fprintf(stderr, "build_dec tree malloc wrong\n");
-        // perror("malloc");
-        exit(1);
-    }
+    //DTNode *tree = malloc(sizeof(DTNode) * data->num_items);
+    //if (tree == NULL) {
+    //    fprintf(stderr, "build_dec tree malloc wrong\n");
+    //    // perror("malloc");
+    //    exit(1);
+    //}
 
-    tree = build_subtree(data, data->num_items, indices);
+    DTNode *tree = build_subtree(data, data->num_items, indices);
     free(indices);
     return tree;
 }
