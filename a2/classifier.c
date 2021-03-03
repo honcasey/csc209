@@ -56,19 +56,13 @@ int main(int argc, char *argv[]) {
   Dataset *training_set;
   Dataset *testing_set;
 
-  printf("Loading training data...\n");
   training_set = load_dataset(training_file_list);
-
-  printf("Loading testing data...\n");
   testing_set = load_dataset(test_file_list);
-
-  printf("Datasets loaded, building decision tree...\n");
   
   // Call `make_dec_tree()` to build the decision tree with training data
   DTNode *tree;
   tree = build_dec_tree(training_set);
 
-  printf("Decision tree built, calling classify...\n");
   // For each test image, call `dec_tree_classify()` and compare the real label with the predicted label
   for (int i = 0; i < testing_set->num_items; i++) {
     if (dec_tree_classify(tree, &testing_set->images[i]) == testing_set->labels[i]) {

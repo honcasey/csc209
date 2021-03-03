@@ -195,7 +195,7 @@ int find_best_split(Dataset *data, int M, int *indices) {
     for (int pixel = 0; pixel < NUM_PIXELS; pixel++) {
         double temp_gini = gini_impurity(data, M, indices, pixel); //compute gini impurity of current pixel
         if (!isnan(temp_gini)) { //check for NAN
-            if (temp_gini <= min_gini) { // if newly calculated impurity is less than the current minimum,
+            if (temp_gini < min_gini) { // if newly calculated impurity is less than the current minimum,
                 min_gini = temp_gini; // replace
                 curr_pixel = pixel;
             }
@@ -240,7 +240,7 @@ DTNode *build_subtree(Dataset *data, int M, int *indices) {
             exit(1);
         } 
     get_most_frequent(data, M, indices, label, freq);
-    double ratio = (double)*freq/(double)M;
+    double ratio = (double)*freq/M;
     
     if (ratio > THRESHOLD_RATIO) {
         // don't split, make it a leaf that outputs the same class
