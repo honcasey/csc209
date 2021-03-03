@@ -332,8 +332,8 @@ DTNode *build_subtree(Dataset *data, int M, int *indices) {
         new_node->left = build_subtree(data, left_len, left_indices);
         new_node->right = build_subtree(data, right_len, right_indices);
 
-        // free(right_indices);
-        // free(left_indices);
+        free(right_indices);
+        free(left_indices);
         return new_node;
     }
 }
