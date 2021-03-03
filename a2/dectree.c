@@ -154,20 +154,35 @@ double gini_impurity(Dataset *data, int M, int *indices, int pixel) {
  * If multiple labels have the same maximal frequency, return the smallest one.
  */
 void get_most_frequent(Dataset *data, int M, int *indices, int *label, int *freq) {
-    *label = -1;
-    *freq = -1;
-    for (int i = 0; i < M; i++) { // for each label in the Dataset
-        int count = 1;
-        for (int j = 1; j < M; j++) {
-            if (data->labels[indices[i]] == data->labels[indices[j]]) {
-                count++;
-            }
-        } 
-        if (count > *freq) { // if current label occurs more frequently then replace it
-            *label = (int)data->labels[indices[i]];
-            *freq = count;
+    // *label = -1;
+    // *freq = -1;
+    // for (int i = 0; i < M; i++) { // for each label in the Dataset
+    //     int count = 1;
+    //     for (int j = 1; j < M; j++) {
+    //         if (data->labels[indices[i]] == data->labels[indices[j]]) {
+    //             count++;
+    //         }
+    //     } 
+    //     if (count > *freq) { // if current label occurs more frequently then replace it
+    //         *label = (int)data->labels[indices[i]];
+    //         *freq = count;
+    //     }
+    // }
+    // return;
+    int label_count[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    for (int i = 0; i < M; i++) {
+        label_count[data->labels[indices[i]]]++;
+    }
+    int most_label = -1;
+    int most_freq = -1;
+    for (int j = 0; j < 10; j++) {
+        if (label_count[j] > most_freq) {
+            most_label = j;
+            most_freq = label_count[j];
         }
     }
+    *label = most_label;
+    *freq = most_freq;
     return;
 }
 
