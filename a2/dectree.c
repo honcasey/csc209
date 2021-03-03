@@ -332,8 +332,6 @@ DTNode *build_subtree(Dataset *data, int M, int *indices) {
         new_node->left = build_subtree(data, left_len, left_indices);
         new_node->right = build_subtree(data, right_len, right_indices);
 
-        free(right_indices);
-        free(left_indices);
         return new_node;
     }
 }
@@ -357,7 +355,7 @@ DTNode *build_dec_tree(Dataset *data) {
         indices[i] = i;
     }
 
-    DTNode *tree = malloc(sizeof(DTNode));
+    DTNode *tree = malloc(sizeof(DTNode) * data->num_items);
     if (tree == NULL) {
         fprintf(stderr, "build_dec tree malloc wrong\n");
         // perror("malloc");
