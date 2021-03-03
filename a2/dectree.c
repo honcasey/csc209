@@ -209,11 +209,6 @@ int find_best_split(Dataset *data, int M, int *indices) {
                 min_gini = temp_gini; // replace
                 curr_pixel = pixel;
             }
-            if (temp_gini == min_gini) { // if it's the same as the current minimum
-                if (pixel < curr_pixel) { // check which pixel is smaller
-                    curr_pixel = pixel; // replace curr pixel with smaller
-                }
-            }
         }
     }
     
