@@ -32,18 +32,36 @@ int main(void) {
   }
   
   // TODO
-  int fd[2], r;
+  int fd[2];
   if (pipe(fd) == -1) {
     perror("pipe");
     exit(1);
   } 
   int r = fork();
-  if (r > 0) {
+  if (r < 0) {
+    perror("fork");
+    exit(1);
+  }
+  else if (r == 0) { // child will run
+    if (dup2(fd[0], fileno(stdin)) == -1) {
+      perror("dup2");
+      exit(1);
+    }
+    if (close(fd[1]) == -1) { // close write end of child
+      perror("close");
+      exit(1);
+    }
+    if (close(fd[0]) == -1) { // close read end of child 
+      perror("close");
+      exit(1);
+    }
+    execl("./validate", "validate", NULL);
+  }
+  if (r > 0) { // parent
     if (close(fd[0]) == -1) { // parent won't be reading from pipe
       perror("close");
       exit(1);
     }
-
     char *input = strchr(user_id, '\n');
     *(input + 1) = '\0';
     if (write(fd[1], user_id, MAXLINE) == -1) {
@@ -64,6 +82,9 @@ int main(void) {
       if (WEXITSTATUS(status) == 0) {
         printf(SUCCESS);
       }
+      else if (WEXITSTATUS(status) == 1) {
+        exit(1);
+      }
       else if (WEXITSTATUS(status) == 2) {
         printf(INVALID);
       }
@@ -72,25 +93,7 @@ int main(void) {
       }
     }
   }
-  else if (r == 0) { // child will run
-    if (dup2(fd[0], fileno(stdin)) == -1) {
-      perror("dup2");
-      exit(1);
-    }
-    if (close(fd[1]) == -1) {
-      perror("close");
-      exit(1);
-    }
-    if (close(fd[0]) == -1) {
-      perror("close");
-      exit(1);
-    }
-    execl("./validate", "validate", NULL);
-  }
-  else {
-    perror("fork");
-    exit(1);
-  }
+  
 
   return 0;
 }
