@@ -45,14 +45,14 @@ int main(void) {
 
     char *input = strchr(user_id, '\n');
     *(input + 1) = '\0';
-    if (write(fd[1], user_id, MAX_PASSWORD) == -1) {
+    if (write(fd[1], user_id, MAXLINE) == -1) {
       perror("write");
       exit(1);
     }
 
     input = strchr(password, '\n');
     *(password + 1) = '\0';
-    if (write(fd[1], password, MAX_PASSWORD) == -1) {
+    if (write(fd[1], password, MAXLINE) == -1) {
       perror("write");
       exit(1);
     }
