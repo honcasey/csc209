@@ -37,7 +37,8 @@ int main(void) {
     perror("pipe");
     exit(1);
   } 
-  if ((r = fork()) > 0) {
+  int r = fork();
+  if (r > 0) {
     if (close(fd[0]) == -1) { // parent won't be reading from pipe
       perror("close");
       exit(1);
@@ -59,7 +60,7 @@ int main(void) {
 
     int status;
     wait(&status);
-    if (WIFEXITED(status)) {
+    if (WIFEXITED(status)) { // check exit code from child
       if (WEXITSTATUS(status) == 0) {
         printf(SUCCESS);
       }
@@ -85,6 +86,10 @@ int main(void) {
       exit(1);
     }
     execl("./validate", "validate", NULL);
+  }
+  else {
+    perror("fork");
+    exit(1);
   }
 
   return 0;
