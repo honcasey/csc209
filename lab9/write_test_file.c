@@ -20,10 +20,11 @@ int main(int argc, char **argv) {
     }
 
     // TODO: complete this program according its description above.
-
-
-
-
+    int nums[100];
+    for (int i = 0; i < 100; i++) {
+        nums[i] = random() % 100;
+    }
+    fwrite(nums, sizeof(int), 100, fp);
 
     fclose(fp);
     return 0;
