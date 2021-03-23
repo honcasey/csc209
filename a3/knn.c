@@ -217,5 +217,5 @@ double distance_cosine(Image *a, Image *b){
     for (int i = 0; i < a->sx * a->sy; i++) {
         d += (a->data[i] * b->data[i]) / (pow(a->data[i], 2) * (pow(b->data[i], 2)));
     }
-    return 2*arccos(d) / M_PI;
+    return 2*acos(d) / M_PI;
 }
