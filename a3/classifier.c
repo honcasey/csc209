@@ -130,9 +130,15 @@ int main(int argc, char *argv[]) {
     int num_pipes = num_procs * 2;
     int fd[num_pipes][2]; // create two pipes for each child process
     for (int i = 0; i < num_pipes; i+=2) {
-        if ((pipe(fd[i]) | pipe(fd[i+1])) == -1) {
+        if (pipe(fd[i]) == -1) { // first pipe
             if (verbose) {
-                fprintf(stderr, "Pipes didn't work\n");
+                fprintf(stderr, "Pipe 1 didn't work\n");
+            }
+            exit(1);
+        }
+        if (pipe(fd[i+1]) == -1) { // second pipe
+            if (verbose) {
+                fprintf(stderr, "Pipe 2 didn't work\n");
             }
             exit(1);
         }
@@ -147,76 +153,104 @@ int main(int argc, char *argv[]) {
             }
             exit(1);
         }
+        else if (result > 0) { // parent
+            int child_num = testing->num_items / num_procs;
+            int start_idx = 0;
+            //for (int j = 0; j < num_procs; j++) {
+                // write start_idx and N to child's pipe (p_in)
+                // if (close(fd[i][0]) == -1) { // parent won't be reading from pipe -> but the child needs to read from this pipe later in child_handler
+                //    if (verbose) {
+                //        fprintf(stderr, "Close 1 error\n");
+                //    }
+                //    exit(1);
+                // }
+                if (write(fd[i][1], &start_idx, sizeof(int)) != sizeof(int)) { // write start_idx to pipe
+                    if (verbose) {
+                        fprintf(stderr, "Write 1 error\n");
+                    }
+                    exit(1);
+                }
+                if (write(fd[i][1], &child_num, sizeof(int)) != sizeof(int)) { // write N to pipe
+                    if (verbose) {
+                        fprintf(stderr, "Write 2 error\n");
+                    }
+                    exit(1);
+                }
+                if (close(fd[i][1]) == -1) { // close write end of pipe
+                   if (verbose) {
+                       fprintf(stderr, "Close 2  error\n");
+                   }
+                   exit(1);
+                }
+		        start_idx += child_num;
+            //}
+        } 
         else if (result == 0) { // child
-            if (close(fd[i][1]) == -1) { // close writing end
+            if (close(fd[i][1]) == -1) { // close writing end of first pipe
                 if (verbose) {
                     fprintf(stderr, "Close child error\n");
                 }
                 exit(1);
             }
-            for (int x = 1; x < i; x++) { // close all previously forked children's writing ends
+            for (int x = 0; x < i; x++) { // close all previously forked children pipes
                 if (close(fd[x][1]) == -1) {
                     if (verbose) {
                         fprintf(stderr, "Close child error\n");
                     }
                 exit(1);
                 }
+                if (close(fd[x][0]) == -1) {
+                    if (verbose) {
+                        fprintf(stderr, "Close child error\n");
+                    }
+                exit(1);
+                }
+            }
+            if (close(fd[i+1][0]) == -1) { // close reading end of second pipe
+                if (verbose) {
+                    fprintf(stderr, "Close child error\n");
+                }
+                exit(1);
             }
             child_handler(training, testing, K, fptr, fd[i][0], fd[i+1][1]); 
             // p_in = first pipe's reading end, p_out = second pipe's writing end
             exit(0); // don't fork children on next loop iteration
-        }  
-        else if (result > 0) { // parent
-            int child_num = testing->num_items / num_procs;
-            int start_idx = 0;
-            for (int j = 0; j < num_procs; j++) {
-                // write start_idx and N to child's pipe (p_in)
-                if (close(fd[j][0]) == -1) { // parent won't be reading from pipe
-                    if (verbose) {
-                        fprintf(stderr, "Close 1 error\n");
-                    }
+        }
+        // Wait for children to finish -> only parent gets here
+        int status;
+        int y = wait(&status);
+        if(verbose) {
+            printf("- Waiting for children...\n");
+        }
+        if (y == -1) {
+            if (verbose) {
+                fprintf(stderr, "Wait error");
+            }
+        }
+        // When the children have finised, read their results from their pipe
+        else {
+            if (WIFEXITED(status)) {
+                int temp_correct;
+                if (read(fd[i+1][1], &temp_correct, sizeof(int)) != sizeof(int)) {
+                    perror("read");
                     exit(1);
                 }
-                if (write(fd[j][1], &start_idx, sizeof(int)) != sizeof(int)) { // write start_idx to pipe
-                    if (verbose) {
-                        fprintf(stderr, "Write 1 error\n");
-                    }
-                    exit(1);
-                }
-                if (write(fd[j][1], &child_num, sizeof(int)) != sizeof(int)) { // write N to pipe
-                    if (verbose) {
-                        fprintf(stderr, "Write 2 error\n");
-                    }
-                    exit(1);
-                }
-                //if (close(fd[j][1]) == -1) {
-                //    if (verbose) {
-                //        fprintf(stderr, "Close 2  error\n");
-                //    }
-                //    exit(1);
-                //}
-		start_idx += child_num;
+                total_correct += temp_correct;
+            }  
+        }
+        if (close(fd[i][0]) == -1) { // close child_handler pipes
+            if (verbose) {
+                fprintf(stderr, "Close child error\n");
             }
-            int status;
-            // Wait for children to finish
-            int y = wait(&status);
-            if(verbose) {
-                printf("- Waiting for children...\n");
+            exit(1);
+        }
+        if (close(fd[i+1][1]) == -1) {
+            if (verbose) {
+                fprintf(stderr, "Close child error\n");
             }
-            if (y == -1) {
-                if (verbose) {
-                    fprintf(stderr, "Wait error");
-                }
-            }
-            // When the children have finised, read their results from their pipe
-            else {
-                if (WIFEXITED(status)) {
-                    total_correct += WEXITSTATUS(status);
-                }
-            }
-        } 
+            exit(1);
+        }
     }
-
     // This is the only print statement that can occur outside the verbose check
     printf("%d\n", total_correct);
 
