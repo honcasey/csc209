@@ -130,8 +130,10 @@ int main(int argc, char *argv[]) {
     
     int num_pipes = num_procs * 2;
     int fd[num_pipes][2]; // create two pipes for each child process
+    printf("num_pipes = %d\n", num_pipes);
 
     int child_num = testing->num_items / num_procs; // divide total number of items by number of children/processes
+    printf("child_num = %d\n", child_num);
     int start_idx = 0; // first start with image at index 0
     for (int i = 0; i < num_pipes; i+=2) {
         if (pipe(fd[i]) == -1) { // first pipe
@@ -140,12 +142,14 @@ int main(int argc, char *argv[]) {
             }
             exit(1);
         }
+        printf("piped fd[i]\n");
         if (pipe(fd[i+1]) == -1) { // second pipe
             if (verbose) {
                 fprintf(stderr, "Pipe 2 didn't work\n");
             }
             exit(1);
         }
+        printf("piped fd[i+1]\n");
 
         int result = fork();
         // Distribute the work to the children by writing their starting index and
@@ -167,6 +171,7 @@ int main(int argc, char *argv[]) {
                 //    }
                 //    exit(1);
                 // }
+                
                 if (write(fd[i][1], &start_idx, sizeof(int)) != sizeof(int)) { // write start_idx to pipe
                     if (verbose) {
                         fprintf(stderr, "Write 1 error\n");
@@ -179,13 +184,16 @@ int main(int argc, char *argv[]) {
                     }
                     exit(1);
                 }
+                printf("wrote to pipe\n");
                 if (close(fd[i][1]) == -1) { // close write end of pipe
                    if (verbose) {
                        fprintf(stderr, "Close 2  error\n");
                    }
                    exit(1);
                 }
+                printf("closed pipe\n");
 		        start_idx += child_num;
+                printf("new start_idx = %d, now waiting for child\n", start_idx);
             //}
         } 
         else if (result == 0) { // child
@@ -209,6 +217,7 @@ int main(int argc, char *argv[]) {
                 //exit(1);
                 //}
             }
+            printf("closed pipes\n");
             //if (close(fd[i+1][0]) == -1) { // close reading end of second pipe
             //    if (verbose) {
             //        fprintf(stderr, "Close child error\n");
@@ -222,20 +231,20 @@ int main(int argc, char *argv[]) {
         }
     } // at this point the for loop has finished, each child's correct predictions has been written to fd[i+1];
     // Wait for children to finish -> only parent gets here
-    int status;
-    int y = wait(&status);
-    if(verbose) {
-        printf("- Waiting for children...\n");
-    }
-    if (y == -1) {
-        if (verbose) {
-            fprintf(stderr, "Wait error");
-        }
-    }
+    //int status;
+    //int y = wait(&status);
+    //if(verbose) {
+    //    printf("- Waiting for children...\n");
+    //}
+    //if (y == -1) {
+    //    if (verbose) {
+    //        fprintf(stderr, "Wait error");
+    //    }
+    //}
     // When the children have finised, read their results from their pipe
     for (int y = 0; y < num_pipes; y+=2) {
         printf("child terminated\n");
-        if (WIFEXITED(status)) {
+        //if (WIFEXITED(status)) {
             int temp_correct;
             if (read(fd[y+1][0], &temp_correct, sizeof(int)) != sizeof(int)) {
                 fprintf(stderr, "read 1 issue\n");
@@ -243,7 +252,7 @@ int main(int argc, char *argv[]) {
                 exit(1);
             }
             total_correct += temp_correct;
-        }  
+        //}  
         if (close(fd[y][0]) == -1) { // close child_handler pipes
             if (verbose) {
                 fprintf(stderr, "Close child 4 error\n");
