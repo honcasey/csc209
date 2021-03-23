@@ -96,11 +96,12 @@ int main(int argc, char *argv[]) {
      */ 
   
     // TODO
+    double (*fptr)(Image *, Image *) = NULL;
     if (strncmp(dist_metric, "euclidean", strlen(dist_metric)) == 0) {
-        dist_metric = distance_euclidean;
+        fptr = distance_euclidean;
     }
     if (strncmp(dist_metric, "cosine", strlen(dist_metric)) == 0) {
-        dist_metric = distance_cosine;
+        fptr = distance_cosine;
     }
 
     // Load data sets
@@ -161,7 +162,7 @@ int main(int argc, char *argv[]) {
                 exit(1);
                 }
             }
-            child_handler(training, testing, K, dist_metric, fd[i][0], fd[i+1][1]); 
+            child_handler(training, testing, K, fptr, fd[i][0], fd[i+1][1]); 
             // p_in = first pipe's reading end, p_out = second pipe's writing end
             exit(0); // don't fork children on next loop iteration
         }  
