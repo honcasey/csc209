@@ -95,7 +95,7 @@ int knn_predict(Dataset *data, Image *input, int K, double (*fptr)(Image *, Imag
         
         // TODO Change the call below to call distance function passed in as
         // a parameter
-        double dist = distance_euclidean(&data->images[i], input);
+        double dist = fptr(&data->images[i], input);
 
         // Find the maximum distance among the previous K closest
         double max_dist = -1;
@@ -213,12 +213,11 @@ void child_handler(Dataset *training, Dataset *testing, int K,
  *   - "man acos" describes the arc cos funciton in the C math library
 */
 double distance_cosine(Image *a, Image *b){
-    double d = 0.0;
+    double d = 0;
     for (int i = 0; i < a->sx * a->sy; i++) {
-        double denom = (pow(a->data[i], 2) * (pow(b->data[i], 2)));
-        while (denom != 0) { // to avoid division by zero errors
-            d += (double)((a->data[i] * b->data[i]) / denom);
-        }
+        double num = ((double)a->data[i]) * ((double)b->data[i]);
+        double denom = ((double)pow(a->data[i], 2) * ((double)pow(b->data[i], 2)));
+        d += num / denom;
     }
-    return (2/M_PI)*acos(d);
+    return (2.0 / M_PI) * acos(d);
 }
