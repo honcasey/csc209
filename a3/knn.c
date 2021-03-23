@@ -223,6 +223,7 @@ double distance_cosine(Image *a, Image *b){
         x += ((double)pow(a->data[i], 2));
         y += ((double)pow(b->data[i], 2));
     }
-    d = num / (x * y);
-    return (2* acos(d))/M_PI;
+
+    d = num / (sqrt(x) * sqrt(y));
+    return (2 / M_PI) * acos(d);
 }
