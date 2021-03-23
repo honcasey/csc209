@@ -60,6 +60,7 @@ int main(int argc, char *argv[]) {
         switch(opt) {
         case 'v':
             verbose = 1;
+            break;
         case 'K':
             K = atoi(optarg);
             break;
@@ -83,12 +84,6 @@ int main(int argc, char *argv[]) {
     char *training_file = argv[optind];
     optind++;
     char *testing_file = argv[optind];
-
-    // TODO The following lines are included to prevent compiler warnings
-    // and should be removed when you use the variables.
-    (void)K;
-    (void)dist_metric;
-    (void)num_procs;
   
     // Set which distance function to use
     /* You can use the following string comparison which will allow
@@ -101,7 +96,14 @@ int main(int argc, char *argv[]) {
      */ 
   
     // TODO
-
+    if (strncmp(dist_metric, "euclidean", strlen(dist_metric)) == 0) {
+        //found a match
+        dist_metric = "euclidean";
+    }
+    if (strncmp(dist_metric, "cosine", strlen(dist_metric)) == 0) {
+        //found a match
+        dist_metric = "cosine";
+    }
 
     // Load data sets
     if(verbose) {
@@ -126,38 +128,100 @@ int main(int argc, char *argv[]) {
     }
 
     // TODO
+    int num_pipes = num_procs * 2;
+    int fd[num_pipes][2]; // create two pipes for each child process
+    for (int i = 0; i < num_pipes; i+=2) {
+        if (pipe(fd[i]) | pipe(fd[i+1]) == -1) {
+            if (verbose) {
+                fprintf(stderr, "Pipes didn't work\n");
+            }
+            exit(1);
+        }
+        int result = fork();
+        // Distribute the work to the children by writing their starting index and
+        // the number of test images to process to their write pipe
 
-
-    // Distribute the work to the children by writing their starting index and
-    // the number of test images to process to their write pipe
-
-    // TODO
-
-
-
-    // Wait for children to finish
-    if(verbose) {
-        printf("- Waiting for children...\n");
-    }
-
-    // TODO
-
-
-    // When the children have finised, read their results from their pipe
- 
-    // TODO
-
-
-
-    if(verbose) {
-        printf("Number of correct predictions: %d\n", total_correct);
+        // TODO
+        if (result < 0) {
+            if (verbose) {
+                fprintf(stderr, "Fork didn't work\n");
+            }
+            exit(1);
+        }
+        else if (result == 0) { // child
+            if (close(fd[i][1]) == -1) { // close writing end
+                if (verbose) {
+                    fprintf(stderr, "Close child error\n");
+                }
+                exit(1);
+            }
+            for (int x = 1; x < i; x++) { // close all previously forked children's writing ends
+                if (close(fd[x][1]) == -1) {
+                    if (verbose) {
+                        fprintf(stderr, "Close child error\n");
+                    }
+                exit(1);
+                }
+            }
+            child_handler(training, testing, K, dist_metric, fd[i][0], fd[i+1][1]); 
+            // p_in = first pipe's reading end, p_out = second pipe's writing end
+            exit(0); // don't fork children on next loop iteration
+        }  
+        else if (result > 0) { // parent
+            int child_num = testing->num_items / num_procs;
+            int start_idx = 0;
+            for (int j = 0; j < num_procs; j++) {
+                // write start_idx and N to child's pipe (p_in)
+                if (close(fd[j][0]) == -1) { // parent won't be reading from pipe
+                    if (verbose) {
+                        fprintf(stderr, "Close error\n");
+                    }
+                    exit(1);
+                }
+                if (write(fd[j][1], &start_idx, sizeof(int)) != sizeof(int)) { // write start_idx to pipe
+                    if (verbose) {
+                        fprintf(stderr, "Write 1 error\n");
+                    }
+                    exit(1);
+                }
+                if (write(fd[j][1], &child_num, sizeof(int)) != sizeof(int)) { // write N to pipe
+                    if (verbose) {
+                        fprintf(stderr, "Write 2 error\n");
+                    }
+                    exit(1);
+                }
+                if (close(fd[j][1]) == -1) {
+                    if (verbose) {
+                        fprintf(stderr, "Close error\n");
+                    }
+                    exit(1);
+                }
+                start_idx += child_num;
+            }
+            int status;
+            // Wait for children to finish
+            int y = wait(&status);
+            if(verbose) {
+                printf("- Waiting for children...\n");
+            }
+            if (y == -1) {
+                if (verbose) {
+                    fprintf(stderr, "Wait error");
+                }
+            }
+            // When the children have finised, read their results from their pipe
+            else {
+                if (WIFEXITED(status)) {
+                    total_correct += WEXITSTATUS(status);
+                }
+            }
+        } 
     }
 
     // This is the only print statement that can occur outside the verbose check
     printf("%d\n", total_correct);
 
     // Clean up any memory, open files, or open pipes
-
     // TODO
 
 

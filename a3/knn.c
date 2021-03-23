@@ -172,8 +172,36 @@ void child_handler(Dataset *training, Dataset *testing, int K,
                    double (*fptr)(Image *, Image *),int p_in, int p_out) {
 
     //TODO
+    int start_idx;
+    int N;
 
-    return;
+    if (read(p_in, &start_idx, sizeof(int)) != sizeof(int)) {
+        perror("read");
+        exit(1);
+    }
+    if (read(p_in, &N, sizeof(int)) != sizeof(int)) {
+        perror("read");
+        exit(1);
+    }
+    if (close(p_in) == -1) {
+        perror("close");
+        exit(1);
+    }
+
+    int correct = 0;
+    for (int i = 0; i < N; i++) {
+        if (knn_predict(training, &(testing->images[start_idx + i]), K, fptr) == testing->labels[start_idx + 1]) {
+            correct++;
+        }
+    }
+    if (write(p_out, &correct, sizeof(int)) != sizeof(int)) {
+        perror("write");
+        exit(1);
+    }
+    if(close(p_out) == -1) {
+        perror("close");
+        exit(1);
+    }
 }
 
 /**
@@ -185,8 +213,9 @@ void child_handler(Dataset *training, Dataset *testing, int K,
  *   - "man acos" describes the arc cos funciton in the C math library
 */
 double distance_cosine(Image *a, Image *b){
-
-    //TODO
-
-    return 0.0;
+    double d = 0;
+    for (int i = 0; i < a->sx * a->sy; i++) {
+        d += (a->data[i] * b->data[i]) / (pow(a->data[i], 2) * (pow(b->data[i], 2)));
+    }
+    return 2*arccos(d) / M_PI;
 }
