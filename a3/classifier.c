@@ -97,12 +97,10 @@ int main(int argc, char *argv[]) {
   
     // TODO
     if (strncmp(dist_metric, "euclidean", strlen(dist_metric)) == 0) {
-        //found a match
-        dist_metric = "euclidean";
+        dist_metric = distance_euclidean;
     }
     if (strncmp(dist_metric, "cosine", strlen(dist_metric)) == 0) {
-        //found a match
-        dist_metric = "cosine";
+        dist_metric = distance_cosine;
     }
 
     // Load data sets
@@ -131,7 +129,7 @@ int main(int argc, char *argv[]) {
     int num_pipes = num_procs * 2;
     int fd[num_pipes][2]; // create two pipes for each child process
     for (int i = 0; i < num_pipes; i+=2) {
-        if (pipe(fd[i]) | pipe(fd[i+1]) == -1) {
+        if ((pipe(fd[i]) | pipe(fd[i+1])) == -1) {
             if (verbose) {
                 fprintf(stderr, "Pipes didn't work\n");
             }
@@ -223,8 +221,8 @@ int main(int argc, char *argv[]) {
 
     // Clean up any memory, open files, or open pipes
     // TODO
-
-
+    free(testing);
+    free(training);
 
     return 0;
 }
