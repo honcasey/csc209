@@ -191,20 +191,20 @@ int main(int argc, char *argv[]) {
         else if (result == 0) { // child
             if (close(fd[i][1]) == -1) { // close writing end of first pipe
                 if (verbose) {
-                    fprintf(stderr, "Close child error\n");
+                    fprintf(stderr, "Close child 1 error\n");
                 }
                 exit(1);
             }
             for (int x = 0; x < i; x++) { // close all previously forked children pipes
                 if (close(fd[x][1]) == -1) {
                     if (verbose) {
-                        fprintf(stderr, "Close child error\n");
+                        fprintf(stderr, "Close child 2 error\n");
                     }
                 exit(1);
                 }
                 if (close(fd[x][0]) == -1) {
                     if (verbose) {
-                        fprintf(stderr, "Close child error\n");
+                        fprintf(stderr, "Close child 3 error\n");
                     }
                 exit(1);
                 }
@@ -238,26 +238,27 @@ int main(int argc, char *argv[]) {
         if (WIFEXITED(status)) {
             int temp_correct;
             if (read(fd[y+1][0], &temp_correct, sizeof(int)) != sizeof(int)) {
-                perror("read");
+                fprintf(stderr, "read 1 issue\n");
+                //perror("read");
                 exit(1);
             }
             total_correct += temp_correct;
         }  
         if (close(fd[y][0]) == -1) { // close child_handler pipes
             if (verbose) {
-                fprintf(stderr, "Close child error\n");
+                fprintf(stderr, "Close child 4 error\n");
             }
             exit(1);
         }
         if (close(fd[y+1][1]) == -1) {
             if (verbose) {
-                fprintf(stderr, "Close child error\n");
+                fprintf(stderr, "Close child 5 error\n");
             }
             exit(1);
         }
         if (close(fd[y+1][0]) == -1) {
             if (verbose) {
-                fprintf(stderr, "close child error\n");
+                fprintf(stderr, "close child 6 error\n");
             }
             exit(1);
         }
