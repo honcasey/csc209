@@ -214,10 +214,15 @@ void child_handler(Dataset *training, Dataset *testing, int K,
 */
 double distance_cosine(Image *a, Image *b){
     double d = 0;
+    double num = 0;
+    double x = 0;
+    double y = 0;
+
     for (int i = 0; i < a->sx * a->sy; i++) {
-        double num = ((double)a->data[i]) * ((double)b->data[i]);
-        double denom = ((double)pow(a->data[i], 2) * ((double)pow(b->data[i], 2)));
-        d += num / denom;
+        num += ((double)a->data[i]) * ((double)b->data[i]);
+        x += ((double)pow(a->data[i], 2));
+        y += ((double)pow(b->data[i], 2));
     }
+    d = num / (x * y);
     return (2.0 / M_PI) * acos(d);
 }
