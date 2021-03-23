@@ -202,12 +202,12 @@ int main(int argc, char *argv[]) {
                     }
                 exit(1);
                 }
-                if (close(fd[x][0]) == -1) {
-                    if (verbose) {
-                        fprintf(stderr, "Close child 3 error\n");
-                    }
-                exit(1);
-                }
+                //if (close(fd[x][0]) == -1) {
+                //    if (verbose) {
+                //        fprintf(stderr, "Close child 3 error\n");
+                //    }
+                //exit(1);
+                //}
             }
             //if (close(fd[i+1][0]) == -1) { // close reading end of second pipe
             //    if (verbose) {

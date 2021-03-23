@@ -176,15 +176,18 @@ void child_handler(Dataset *training, Dataset *testing, int K,
     int N;
 
     if (read(p_in, &start_idx, sizeof(int)) != sizeof(int)) {
-        perror("read");
+        fprintf(stderr, "read a issue\n");
+        //perror("read");
         exit(1);
     }
     if (read(p_in, &N, sizeof(int)) != sizeof(int)) {
-        perror("read");
+        fprintf(stderr, "read b issue\n");
+        //perror("read");
         exit(1);
     }
     if (close(p_in) == -1) {
-        perror("close");
+        fprintf(stderr, "close a issue\n");
+        //perror("close");
         exit(1);
     }
 
@@ -195,11 +198,13 @@ void child_handler(Dataset *training, Dataset *testing, int K,
         }
     }
     if (write(p_out, &correct, sizeof(int)) != sizeof(int)) {
-        perror("write");
+        fprintf(stderr, "write a issue\n");
+        //perror("write");
         exit(1);
     }
     if(close(p_out) == -1) {
-        perror("close");
+        fprintf(stderr, "close b a issue\n");
+        //perror("close");
         exit(1);
     }
 }
