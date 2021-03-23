@@ -206,12 +206,12 @@ int main(int argc, char *argv[]) {
                 exit(1);
                 }
             }
-            if (close(fd[i+1][0]) == -1) { // close reading end of second pipe
-                if (verbose) {
-                    fprintf(stderr, "Close child error\n");
-                }
-                exit(1);
-            }
+            //if (close(fd[i+1][0]) == -1) { // close reading end of second pipe
+            //    if (verbose) {
+            //        fprintf(stderr, "Close child error\n");
+            //    }
+            //    exit(1);
+            //}
             child_handler(training, testing, K, fptr, fd[i][0], fd[i+1][1]); 
             // p_in = first pipe's reading end, p_out = second pipe's writing end
             exit(0); // don't fork children on next loop iteration
@@ -231,7 +231,7 @@ int main(int argc, char *argv[]) {
         else {
             if (WIFEXITED(status)) {
                 int temp_correct;
-                if (read(fd[i+1][1], &temp_correct, sizeof(int)) != sizeof(int)) {
+                if (read(fd[i+1][0], &temp_correct, sizeof(int)) != sizeof(int)) {
                     perror("read");
                     exit(1);
                 }
@@ -250,6 +250,12 @@ int main(int argc, char *argv[]) {
             }
             exit(1);
         }
+	if (close(fd[i+1][0]) == -1) {
+			if (verbose) {
+			fprintf(stderr, "close child error\n");
+			}
+			exit(1);
+			}
     }
     // This is the only print statement that can occur outside the verbose check
     printf("%d\n", total_correct);
