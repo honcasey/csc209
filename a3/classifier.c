@@ -173,7 +173,7 @@ int main(int argc, char *argv[]) {
                 // write start_idx and N to child's pipe (p_in)
                 if (close(fd[j][0]) == -1) { // parent won't be reading from pipe
                     if (verbose) {
-                        fprintf(stderr, "Close error\n");
+                        fprintf(stderr, "Close 1 error\n");
                     }
                     exit(1);
                 }
@@ -189,13 +189,13 @@ int main(int argc, char *argv[]) {
                     }
                     exit(1);
                 }
-                if (close(fd[j][1]) == -1) {
-                    if (verbose) {
-                        fprintf(stderr, "Close error\n");
-                    }
-                    exit(1);
-                }
-                start_idx += child_num;
+                //if (close(fd[j][1]) == -1) {
+                //    if (verbose) {
+                //        fprintf(stderr, "Close 2  error\n");
+                //    }
+                //    exit(1);
+                //}
+		start_idx += child_num;
             }
             int status;
             // Wait for children to finish
