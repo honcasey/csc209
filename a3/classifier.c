@@ -127,8 +127,12 @@ int main(int argc, char *argv[]) {
     }
 
     // TODO
+    
     int num_pipes = num_procs * 2;
     int fd[num_pipes][2]; // create two pipes for each child process
+
+    int child_num = testing->num_items / num_procs; // divide total number of items by number of children/processes
+    int start_idx = 0; // first start with image at index 0
     for (int i = 0; i < num_pipes; i+=2) {
         if (pipe(fd[i]) == -1) { // first pipe
             if (verbose) {
@@ -142,6 +146,7 @@ int main(int argc, char *argv[]) {
             }
             exit(1);
         }
+
         int result = fork();
         // Distribute the work to the children by writing their starting index and
         // the number of test images to process to their write pipe
@@ -154,8 +159,6 @@ int main(int argc, char *argv[]) {
             exit(1);
         }
         else if (result > 0) { // parent
-            int child_num = testing->num_items / num_procs;
-            int start_idx = 0;
             //for (int j = 0; j < num_procs; j++) {
                 // write start_idx and N to child's pipe (p_in)
                 // if (close(fd[i][0]) == -1) { // parent won't be reading from pipe -> but the child needs to read from this pipe later in child_handler
@@ -213,49 +216,51 @@ int main(int argc, char *argv[]) {
             //    exit(1);
             //}
             child_handler(training, testing, K, fptr, fd[i][0], fd[i+1][1]); 
+            printf("child handler ended\n");
             // p_in = first pipe's reading end, p_out = second pipe's writing end
             exit(0); // don't fork children on next loop iteration
         }
-        // Wait for children to finish -> only parent gets here
-        int status;
-        int y = wait(&status);
-        if(verbose) {
-            printf("- Waiting for children...\n");
+    } // at this point the for loop has finished, each child's correct predictions has been written to fd[i+1];
+    // Wait for children to finish -> only parent gets here
+    int status;
+    int y = wait(&status);
+    if(verbose) {
+        printf("- Waiting for children...\n");
+    }
+    if (y == -1) {
+        if (verbose) {
+            fprintf(stderr, "Wait error");
         }
-        if (y == -1) {
-            if (verbose) {
-                fprintf(stderr, "Wait error");
+    }
+    // When the children have finised, read their results from their pipe
+    for (int y = 0; y < num_pipes; y+=2) {
+        printf("child terminated\n");
+        if (WIFEXITED(status)) {
+            int temp_correct;
+            if (read(fd[y+1][0], &temp_correct, sizeof(int)) != sizeof(int)) {
+                perror("read");
+                exit(1);
             }
-        }
-        // When the children have finised, read their results from their pipe
-        else {
-            if (WIFEXITED(status)) {
-                int temp_correct;
-                if (read(fd[i+1][0], &temp_correct, sizeof(int)) != sizeof(int)) {
-                    perror("read");
-                    exit(1);
-                }
-                total_correct += temp_correct;
-            }  
-        }
-        if (close(fd[i][0]) == -1) { // close child_handler pipes
-            if (verbose) {
-                fprintf(stderr, "Close child error\n");
-            }
-            exit(1);
-        }
-        if (close(fd[i+1][1]) == -1) {
+            total_correct += temp_correct;
+        }  
+        if (close(fd[y][0]) == -1) { // close child_handler pipes
             if (verbose) {
                 fprintf(stderr, "Close child error\n");
             }
             exit(1);
         }
-	if (close(fd[i+1][0]) == -1) {
-			if (verbose) {
-			fprintf(stderr, "close child error\n");
-			}
-			exit(1);
-			}
+        if (close(fd[y+1][1]) == -1) {
+            if (verbose) {
+                fprintf(stderr, "Close child error\n");
+            }
+            exit(1);
+        }
+        if (close(fd[y+1][0]) == -1) {
+            if (verbose) {
+                fprintf(stderr, "close child error\n");
+            }
+            exit(1);
+        }
     }
     // This is the only print statement that can occur outside the verbose check
     printf("%d\n", total_correct);
