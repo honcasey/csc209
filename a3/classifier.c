@@ -135,7 +135,6 @@ int main(int argc, char *argv[]) {
     //printf("num_pipes = %d\n", num_pipes);
 
     int child_num = testing->num_items / num_procs; // divide total number of items by number of children/processes
-    printf("child_num = %d\n", child_num);
     int start_idx = 0; // first start with image at index 0
 
     for (int i = 0; i < num_procs; i++) {
@@ -145,14 +144,14 @@ int main(int argc, char *argv[]) {
             }
             exit(1);
         }
-        printf("piped parent_to_child[i]\n");
+        //printf("piped parent_to_child[i]\n");
         if (pipe(child_to_parent[i]) == -1) { // second pipe
             if (verbose) {
                 perror("pipe");
             }
             exit(1);
         }
-        printf("piped child_to_parent[i]\n");
+        //printf("piped child_to_parent[i]\n");
 
         int result = fork();
         // Distribute the work to the children by writing their starting index and
@@ -285,7 +284,7 @@ int main(int argc, char *argv[]) {
             exit(1);
         }
         total_correct += temp_correct;
-        printf("read from %d, total correct now %d", getpid(), total_correct);
+        printf("read from %d, total correct now %d\n", getpid(), total_correct);
     }
     //}
     // This is the only print statement that can occur outside the verbose check
