@@ -138,7 +138,7 @@ int main(int argc, char *argv[]) {
     printf("child_num = %d\n", child_num);
     int start_idx = 0; // first start with image at index 0
 
-    for (int i = 0; i < num_procs; i+=2) {
+    for (int i = 0; i < num_procs; i++) {
         if (pipe(parent_to_child[i]) == -1) { // first pipe
             if (verbose) {
                 perror("pipe");
