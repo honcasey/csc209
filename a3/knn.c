@@ -172,6 +172,7 @@ void child_handler(Dataset *training, Dataset *testing, int K,
                    double (*fptr)(Image *, Image *),int p_in, int p_out) {
 
     //TODO
+    printf("pid %d child in child_handler\n", getpid());
     int start_idx;
     int N;
 

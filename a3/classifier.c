@@ -191,11 +191,11 @@ int main(int argc, char *argv[]) {
                    exit(1);
                 }
                 printf("closed pipe\n");
-                while ((start_idx + child_num) < testing->num_items) {
+                if ((start_idx + child_num) <= testing->num_items) {
                     start_idx += child_num;
                     printf("new start_idx = %d, now waiting for child\n", start_idx);
                 }
-		        //exit(0);
+		        //exit(0); add a break here?
             //}
         } 
         else if (result == 0) { // child
@@ -219,8 +219,8 @@ int main(int argc, char *argv[]) {
                 //exit(1);
                 //}
             }
-            printf("closed pipes\n");
-            printf("child start_idx = %d, child num = %d\n", start_idx, child_num);
+            printf("pid %d closed pipes\n", getpid());
+            printf("pid %d child start_idx = %d, child num = %d\n", getpid(), start_idx, child_num);
             //if (close(fd[i+1][0]) == -1) { // close reading end of second pipe
             //    if (verbose) {
             //        fprintf(stderr, "Close child error\n");
@@ -228,10 +228,10 @@ int main(int argc, char *argv[]) {
             //    exit(1);
             //}
             child_handler(training, testing, K, fptr, fd[i][0], fd[i+1][1]); 
-            printf("child handler ended\n");
+            printf("pid %d child handler ended\n", getpid());
             // p_in = first pipe's reading end, p_out = second pipe's writing end
             exit(0); // don't fork children on next loop iteration
-        }
+    
     // at this point the for loop has finished, each child's correct predictions has been written to fd[i+1];
     // Wait for children to finish -> only parent gets here
     //int status;
@@ -245,35 +245,37 @@ int main(int argc, char *argv[]) {
     //    }
     //}
     // When the children have finised, read their results from their pipe
-    for (int y = 0; y < num_pipes; y+=2) {
+    // ISSUE - NEVER GETS TO THIS POINT
+    //for (int y = 0; y < num_pipes; y+=2) {
         printf("child terminated\n");
         //if (WIFEXITED(status)) {
         int temp_correct;
-        if (read(fd[y+1][0], &temp_correct, sizeof(int)) != sizeof(int)) {
+        if (read(fd[i+1][0], &temp_correct, sizeof(int)) != sizeof(int)) {
             fprintf(stderr, "read 1 issue\n");
                 //perror("read");
             exit(1);
         }
         total_correct += temp_correct;
         //}  
-        if (close(fd[y][0]) == -1) { // close child_handler pipes
+        if (close(fd[i][0]) == -1) { // close child_handler pipes
             if (verbose) {
                 fprintf(stderr, "Close child 4 error\n");
             }
             exit(1);
         }
-        if (close(fd[y+1][1]) == -1) {
+        if (close(fd[i+1][1]) == -1) {
             if (verbose) {
                 fprintf(stderr, "Close child 5 error\n");
             }
             exit(1);
         }
-        if (close(fd[y+1][0]) == -1) {
+        if (close(fd[i+1][0]) == -1) {
             if (verbose) {
                 fprintf(stderr, "close child 6 error\n");
             }
             exit(1);
         }
+    //}
     }
     // This is the only print statement that can occur outside the verbose check
     printf("%d\n", total_correct);
