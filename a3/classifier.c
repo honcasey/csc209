@@ -171,7 +171,6 @@ int main(int argc, char *argv[]) {
                 //    }
                 //    exit(1);
                 // }
-                
                 if (write(fd[i][1], &start_idx, sizeof(int)) != sizeof(int)) { // write start_idx to pipe
                     if (verbose) {
                         fprintf(stderr, "Write 1 error\n");
@@ -184,7 +183,7 @@ int main(int argc, char *argv[]) {
                     }
                     exit(1);
                 }
-                printf("wrote to pipe\n");
+                printf("wrote startidx = %d, childnum = %d to pipe\n", start_idx, child_num);
                 if (close(fd[i][1]) == -1) { // close write end of pipe
                    if (verbose) {
                        fprintf(stderr, "Close 2  error\n");
@@ -192,8 +191,11 @@ int main(int argc, char *argv[]) {
                    exit(1);
                 }
                 printf("closed pipe\n");
-		        start_idx += child_num;
-                printf("new start_idx = %d, now waiting for child\n", start_idx);
+                while ((start_idx += child_num) < testing->num_items) {
+                    start_idx += child_num;
+                    printf("new start_idx = %d, now waiting for child\n", start_idx);
+                }
+		        exit(0);
             //}
         } 
         else if (result == 0) { // child
@@ -203,13 +205,13 @@ int main(int argc, char *argv[]) {
                 }
                 exit(1);
             }
-            for (int x = 0; x < i; x++) { // close all previously forked children pipes
-                if (close(fd[x][1]) == -1) {
-                    if (verbose) {
-                        fprintf(stderr, "Close child 2 error\n");
-                    }
-                exit(1);
-                }
+            //for (int x = 0; x < i; x++) { // close all previously forked children pipes
+            //    if (close(fd[x][1]) == -1) {
+            //        if (verbose) {
+            //            fprintf(stderr, "Close child 2 error\n");
+            //        }
+            //    exit(1);
+            //    }
                 //if (close(fd[x][0]) == -1) {
                 //    if (verbose) {
                 //        fprintf(stderr, "Close child 3 error\n");
@@ -218,6 +220,7 @@ int main(int argc, char *argv[]) {
                 //}
             }
             printf("closed pipes\n");
+            printf("child start_idx = %d, child num = %d", start_idx, child_num);
             //if (close(fd[i+1][0]) == -1) { // close reading end of second pipe
             //    if (verbose) {
             //        fprintf(stderr, "Close child error\n");
