@@ -221,6 +221,7 @@ int main(int argc, char *argv[]) {
                    }
                exit(1);
                }
+            }
             if (close(child_to_parent[i][0]) == -1) {
                 if (verbose) {
                     fprintf(stderr, "Close child 3 error\n");
