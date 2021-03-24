@@ -257,14 +257,6 @@ int main(int argc, char *argv[]) {
         // When the children have finised, read their results from their pipe
         //for (int y = 0; y < num_pipes; y+=2) {
         //if (WIFEXITED(status)) {
-        int temp_correct;
-        if (read(child_to_parent[i][0], &temp_correct, sizeof(int)) != sizeof(int)) {
-            fprintf(stderr, "read 1 issue\n");
-            //perror("read");
-            exit(1);
-        }
-        total_correct += temp_correct;
-        printf("read from %d, total correct now %d", getpid(), total_correct);
         //}  
         // if (close(parent_to_child[i][0]) == -1) { // close child_handler pipes
         //     if (verbose) {
@@ -284,6 +276,16 @@ int main(int argc, char *argv[]) {
         //     }
         //     exit(1);
         // }
+    }
+    for (int q = 0; q < num_procs; q++) {
+        int temp_correct;
+        if (read(child_to_parent[q][0], &temp_correct, sizeof(int)) != sizeof(int)) {
+            fprintf(stderr, "read 1 issue\n");
+            //perror("read");
+            exit(1);
+        }
+        total_correct += temp_correct;
+        printf("read from %d, total correct now %d", getpid(), total_correct);
     }
     //}
     // This is the only print statement that can occur outside the verbose check
