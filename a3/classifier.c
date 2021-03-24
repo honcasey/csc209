@@ -174,6 +174,12 @@ int main(int argc, char *argv[]) {
                 }
                 exit(1);
             }
+            if (close(child_to_parent[i][1]) == -1) {
+                if (verbose) {
+                    fprintf(stderr, "Close 1a error\n");
+                }
+                exit(1);
+            }
             if (write(parent_to_child[i][1], &start_idx, sizeof(int)) != sizeof(int)) { // write start_idx to pipe
                 if (verbose) {
                     fprintf(stderr, "Write 1 error\n");
@@ -208,13 +214,13 @@ int main(int argc, char *argv[]) {
                 }
                 exit(1);
             }
-            //for (int x = 0; x < i; x++) { // close all previously forked children pipes
-            //    if (close(fd[x][1]) == -1) {
-            //        if (verbose) {
-            //            fprintf(stderr, "Close child 2 error\n");
-            //        }
-            //    exit(1);
-            //    }
+            for (int x = 0; x < i; x++) { // close all previously forked children pipes
+               if (close(child_to_parent[x][0]) == -1) {
+                   if (verbose) {
+                       fprintf(stderr, "Close child 2 error\n");
+                   }
+               exit(1);
+               }
             if (close(child_to_parent[i][0]) == -1) {
                 if (verbose) {
                     fprintf(stderr, "Close child 3 error\n");
@@ -248,15 +254,13 @@ int main(int argc, char *argv[]) {
         //}
 
         // When the children have finised, read their results from their pipe
-
-        // ISSUE - NEVER GETS TO THIS POINT
         //for (int y = 0; y < num_pipes; y+=2) {
         printf("child terminated\n");
         //if (WIFEXITED(status)) {
         int temp_correct;
         if (read(child_to_parent[i][0], &temp_correct, sizeof(int)) != sizeof(int)) {
             fprintf(stderr, "read 1 issue\n");
-                //perror("read");
+            //perror("read");
             exit(1);
         }
         total_correct += temp_correct;
