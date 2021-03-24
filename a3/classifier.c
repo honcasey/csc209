@@ -232,7 +232,7 @@ int main(int argc, char *argv[]) {
             // p_in = first pipe's reading end, p_out = second pipe's writing end
             exit(0); // don't fork children on next loop iteration
         }
-    } // at this point the for loop has finished, each child's correct predictions has been written to fd[i+1];
+    // at this point the for loop has finished, each child's correct predictions has been written to fd[i+1];
     // Wait for children to finish -> only parent gets here
     //int status;
     //int y = wait(&status);
@@ -248,13 +248,13 @@ int main(int argc, char *argv[]) {
     for (int y = 0; y < num_pipes; y+=2) {
         printf("child terminated\n");
         //if (WIFEXITED(status)) {
-            int temp_correct;
-            if (read(fd[y+1][0], &temp_correct, sizeof(int)) != sizeof(int)) {
-                fprintf(stderr, "read 1 issue\n");
+        int temp_correct;
+        if (read(fd[y+1][0], &temp_correct, sizeof(int)) != sizeof(int)) {
+            fprintf(stderr, "read 1 issue\n");
                 //perror("read");
-                exit(1);
-            }
-            total_correct += temp_correct;
+            exit(1);
+        }
+        total_correct += temp_correct;
         //}  
         if (close(fd[y][0]) == -1) { // close child_handler pipes
             if (verbose) {
