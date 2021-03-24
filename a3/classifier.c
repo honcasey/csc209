@@ -261,12 +261,12 @@ int main(int argc, char *argv[]) {
         }
         total_correct += temp_correct;
         //}  
-        if (close(parent_to_child[i][0]) == -1) { // close child_handler pipes
-            if (verbose) {
-                fprintf(stderr, "Close child 4 error\n");
-            }
-            exit(1);
-        }
+        // if (close(parent_to_child[i][0]) == -1) { // close child_handler pipes
+        //     if (verbose) {
+        //         fprintf(stderr, "Close child 4 error\n");
+        //     }
+        //     exit(1);
+        // }
         if (close(child_to_parent[i][1]) == -1) {
             if (verbose) {
                 fprintf(stderr, "Close child 5 error\n");
