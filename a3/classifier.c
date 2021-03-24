@@ -4,6 +4,7 @@
 #include <sys/types.h>  
 #include <sys/wait.h>  
 #include <string.h>
+#include <math.h>
 #include "knn.h"
 
 /*****************************************************************************/
@@ -134,7 +135,8 @@ int main(int argc, char *argv[]) {
     //int fd[num_pipes][2]; 
     //printf("num_pipes = %d\n", num_pipes);
 
-    int child_num = testing->num_items / num_procs; // divide total number of items by number of children/processes
+    int child_num = floor(testing->num_items / num_procs); // divide total number of items by number of children/processes
+    int last = testing->num_items % num_procs; // last process may have less
     int start_idx = 0; // first start with image at index 0
 
     for (int i = 0; i < num_procs; i++) {
@@ -165,8 +167,11 @@ int main(int argc, char *argv[]) {
             exit(1);
         }
         else if (result > 0) { // parent
-            //for (int j = 0; j < num_procs; j++) {
-                // write start_idx and N to child's pipe (p_in)
+            int N = child_num;
+            if (last > 0) { // if there's a remainder or it doesn't divide perfectly among children
+                N++; // give N one more image
+                last--;
+            }
             if (close(parent_to_child[i][0]) == -1) { // parent won't be reading from pipe -> but the child needs to read from this pipe later in child_handler
                 if (verbose) {
                     fprintf(stderr, "Close 1 error\n");
@@ -185,7 +190,7 @@ int main(int argc, char *argv[]) {
                 }
                 exit(1);
             }
-            if (write(parent_to_child[i][1], &child_num, sizeof(int)) != sizeof(int)) { // write N to pipe
+            if (write(parent_to_child[i][1], &N, sizeof(int)) != sizeof(int)) { // write N to pipe
                 if (verbose) {
                     fprintf(stderr, "Write 2 error\n");
                 }
@@ -213,7 +218,7 @@ int main(int argc, char *argv[]) {
                 }
                 exit(1);
             }
-            for (int x = 0; x < i; x++) { // close all previously forked children pipes
+            for (int x = 1; x < i; x++) { // close all previously forked children pipes
                if (close(child_to_parent[x][0]) == -1) {
                    if (verbose) {
                        fprintf(stderr, "Close child 2 error\n");
