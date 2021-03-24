@@ -272,18 +272,18 @@ int main(int argc, char *argv[]) {
         //     }
         //     exit(1);
         // }
-        if (close(child_to_parent[i][1]) == -1) {
-            if (verbose) {
-                fprintf(stderr, "Close child 5 error\n");
-            }
-            exit(1);
-        }
-        if (close(child_to_parent[i][0]) == -1) {
-            if (verbose) {
-                fprintf(stderr, "close child 6 error\n");
-            }
-            exit(1);
-        }
+        // if (close(child_to_parent[i][1]) == -1) {
+        //     if (verbose) {
+        //         fprintf(stderr, "Close child 5 error\n");
+        //     }
+        //     exit(1);
+        // }
+        // if (close(child_to_parent[i][0]) == -1) {
+        //     if (verbose) {
+        //         fprintf(stderr, "close child 6 error\n");
+        //     }
+        //     exit(1);
+        // }
     }
     //}
     // This is the only print statement that can occur outside the verbose check
