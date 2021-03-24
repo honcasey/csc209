@@ -231,6 +231,12 @@ int main(int argc, char *argv[]) {
             exit(1);
         }
         total_correct += temp_correct;
+        if (close(child_to_parent[q][0] == -1)) {
+            if (verbose) {
+                fprintf(stderr, "Close child 4 error\n");
+            }
+            exit(1);
+        }
     }
     // This is the only print statement that can occur outside the verbose check
     printf("%d\n", total_correct);
