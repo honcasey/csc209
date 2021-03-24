@@ -196,7 +196,7 @@ void child_handler(Dataset *training, Dataset *testing, int K,
 
     int correct = 0;
     for (int i = 0; i < N; i++) {
-        if (knn_predict(training, &(testing->images[start_idx + i]), K, fptr) == testing->labels[start_idx + 1]) {
+        if (knn_predict(training, &(testing->images[start_idx + i]), K, fptr) == testing->labels[start_idx + i]) {
             correct++;
         }
     }
