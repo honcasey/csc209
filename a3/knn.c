@@ -177,7 +177,7 @@ void child_handler(Dataset *training, Dataset *testing, int K,
     int N;
 
     if (read(p_in, &start_idx, sizeof(int)) != sizeof(int)) {
-        printf("start_idx = %d\n", start_idx);
+        //printf("start_idx = %d\n", start_idx);
         fprintf(stderr, "read a issue\n");
         //perror("read");
         exit(1);

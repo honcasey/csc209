@@ -190,7 +190,7 @@ int main(int argc, char *argv[]) {
                    }
                    exit(1);
                 }
-                printf("closed pipe\n");
+                printf("closed pipe fd[i][1]\n");
                 if ((start_idx + child_num) <= testing->num_items) {
                     start_idx += child_num;
                     printf("new start_idx = %d, now waiting for child\n", start_idx);
