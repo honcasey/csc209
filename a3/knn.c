@@ -210,6 +210,7 @@ void child_handler(Dataset *training, Dataset *testing, int K,
         //perror("close");
         exit(1);
     }
+    printf("child %d got %d correct", getpid(), correct);
 }
 
 /**

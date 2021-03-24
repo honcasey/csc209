@@ -256,7 +256,6 @@ int main(int argc, char *argv[]) {
 
         // When the children have finised, read their results from their pipe
         //for (int y = 0; y < num_pipes; y+=2) {
-        printf("child terminated\n");
         //if (WIFEXITED(status)) {
         int temp_correct;
         if (read(child_to_parent[i][0], &temp_correct, sizeof(int)) != sizeof(int)) {
@@ -265,6 +264,7 @@ int main(int argc, char *argv[]) {
             exit(1);
         }
         total_correct += temp_correct;
+        printf("read from %d, total correct now %d", getpid(), total_correct);
         //}  
         // if (close(parent_to_child[i][0]) == -1) { // close child_handler pipes
         //     if (verbose) {
