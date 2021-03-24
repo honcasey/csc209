@@ -172,25 +172,19 @@ void child_handler(Dataset *training, Dataset *testing, int K,
                    double (*fptr)(Image *, Image *),int p_in, int p_out) {
 
     //TODO
-    printf("pid %d child in child_handler\n", getpid());
     int start_idx;
     int N;
 
     if (read(p_in, &start_idx, sizeof(int)) != sizeof(int)) {
-        //printf("start_idx = %d\n", start_idx);
-        fprintf(stderr, "read a issue\n");
-        //perror("read");
+        perror("read");
         exit(1);
     }
     if (read(p_in, &N, sizeof(int)) != sizeof(int)) {
-        fprintf(stderr, "read b issue\n");
-        printf("N = %d\n", N);
-        //perror("read");
+        perror("read");
         exit(1);
     }
     if (close(p_in) == -1) {
-        fprintf(stderr, "close a issue\n");
-        //perror("close");
+        perror("close");
         exit(1);
     }
 
@@ -201,16 +195,13 @@ void child_handler(Dataset *training, Dataset *testing, int K,
         }
     }
     if (write(p_out, &correct, sizeof(int)) != sizeof(int)) {
-        fprintf(stderr, "write a issue\n");
-        //perror("write");
+        perror("write");
         exit(1);
     }
     if(close(p_out) == -1) {
-        fprintf(stderr, "close b a issue\n");
-        //perror("close");
+        perror("close");
         exit(1);
     }
-    printf("child %d got %d correct\n", getpid(), correct);
     free_dataset(training);
     free_dataset(testing);
 }
