@@ -191,12 +191,10 @@ int main(int argc, char *argv[]) {
                    exit(1);
                 }
                 printf("closed pipe\n");
-                start_idx += child_num;
-                //if (start_idx > 1000) {
-
-                //}
-                printf("new start_idx = %d, now waiting for child\n", start_idx);
-                
+                while ((start_idx + child_num) < testing->num_items) {
+                    start_idx += child_num;
+                    printf("new start_idx = %d, now waiting for child\n", start_idx);
+                }
 		        //exit(0);
             //}
         } 
