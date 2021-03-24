@@ -195,7 +195,7 @@ int main(int argc, char *argv[]) {
                     start_idx += child_num;
                     printf("new start_idx = %d, now waiting for child\n", start_idx);
                 }
-		        exit(0);
+		        //exit(0);
             //}
         } 
         else if (result == 0) { // child
@@ -220,7 +220,7 @@ int main(int argc, char *argv[]) {
                 //}
             }
             printf("closed pipes\n");
-            printf("child start_idx = %d, child num = %d", start_idx, child_num);
+            printf("child start_idx = %d, child num = %d\n", start_idx, child_num);
             //if (close(fd[i+1][0]) == -1) { // close reading end of second pipe
             //    if (verbose) {
             //        fprintf(stderr, "Close child error\n");
