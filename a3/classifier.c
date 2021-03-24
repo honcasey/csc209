@@ -191,17 +191,17 @@ int main(int argc, char *argv[]) {
                 }
                 exit(1);
             }
-            printf("wrote startidx = %d, childnum = %d to pipe\n", start_idx, child_num);
+            printf("pid %d wrote startidx = %d, childnum = %d to pipe\n", getpid(), start_idx, child_num);
             if (close(parent_to_child[i][1]) == -1) { // close write end of pipe
                 if (verbose) {
                     fprintf(stderr, "Close 2  error\n");
                 }
                 exit(1);
             }
-            printf("closed pipe parent_to_child[i][1]\n");
+            //printf("closed pipe parent_to_child[i][1]\n");
             if ((start_idx + child_num) <= testing->num_items) {
                 start_idx += child_num;
-                printf("new start_idx = %d, now waiting for child\n", start_idx);
+                //printf("new start_idx = %d, now waiting for child\n", start_idx);
             }
 		        //exit(0); add a break here?
             //}
@@ -227,7 +227,7 @@ int main(int argc, char *argv[]) {
                 }
                 exit(1);
             }
-            printf("pid %d closed pipes\n", getpid());
+            //printf("pid %d closed pipes\n", getpid());
             printf("pid %d child start_idx = %d, child num = %d\n", getpid(), start_idx, child_num);
             //if (close(fd[i+1][0]) == -1) { // close reading end of second pipe
             //    if (verbose) {
@@ -236,7 +236,7 @@ int main(int argc, char *argv[]) {
             //    exit(1);
             //}
             child_handler(training, testing, K, fptr, parent_to_child[i][0], child_to_parent[i][1]); 
-            printf("pid %d child handler ended\n", getpid());
+            //printf("pid %d child handler ended\n", getpid());
             // p_in = first pipe's reading end, p_out = second pipe's writing end
             exit(0); // don't fork children on next loop iteration
         } // at this point the for loop has finished, each child's correct predictions has been written to fd[i+1];
@@ -284,7 +284,7 @@ int main(int argc, char *argv[]) {
             exit(1);
         }
         total_correct += temp_correct;
-        printf("read from %d, total correct now %d\n", getpid(), total_correct);
+        //printf("read from %d, total correct now %d\n", getpid(), total_correct);
     }
     //}
     // This is the only print statement that can occur outside the verbose check
@@ -292,8 +292,9 @@ int main(int argc, char *argv[]) {
 
     // Clean up any memory, open files, or open pipes
     // TODO
-    free(testing);
-    free(training);
+    free_dataset(testing);
+    free_dataset(training);
+    printf("finish freeing\n");
 
     return 0;
 }
