@@ -97,7 +97,7 @@ int main(void) {
         if (FD_ISSET(sock_fd, &listen_fds)) {
             num_read = read(sock_fd, buf, BUF_SIZE);
             buf[num_read] = '\0';
-            printf("[Server] %s", buf);
+            printf("%s", buf);
         }
         /*
          * We should really send "\r\n" too, so the server can identify partial
