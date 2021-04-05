@@ -46,8 +46,18 @@ int accept_connection(int fd, struct sockname *usernames) {
         exit(1);
     }
 
+    char buf[BUF_SIZE + 1];
+    int num_read = read(client_fd, &buf, BUF_SIZE);
+    if (num_read == -1) {
+        perror("read 1");
+        exit(1);
+    }
+    buf[num_read - 1] = '\0';
+
     usernames[user_index].sock_fd = client_fd;
-    usernames[user_index].username = NULL;
+    usernames[user_index].username = malloc(sizeof(buf));
+    printf("%s\n", buf);
+    strcpy(usernames[user_index].username, buf);
     return client_fd;
 }
 
