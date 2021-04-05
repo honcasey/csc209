@@ -13,14 +13,6 @@
 #define BUF_SIZE 128
 
 int main(void) {
-    char buf[BUF_SIZE + 1];
-    int x = read(STDIN_FILENO, buf, BUF_SIZE);
-    if (x == -1) {
-        perror("read");
-        exit(1);
-    }
-    buf[x] = '\0';
-
     // Create the socket FD.
     int sock_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (sock_fd < 0) {
@@ -60,8 +52,8 @@ int main(void) {
         close(sock_fd);
         exit(1);
     }
-    int w = write(sock_fd, buf, x);
-    if (w != x) {
+    int w = write(sock_fd, buf, num_read);
+    if (w != num_read) {
         perror("client: write");
         close(sock_fd);
         exit(1);
