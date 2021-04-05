@@ -13,7 +13,6 @@
 #define BUF_SIZE 128
 
 int main(void) {
-    printf("Please enter a username: ");
     char buf[BUF_SIZE + 1];
     int x = read(STDIN_FILENO, buf, BUF_SIZE);
     if (x == -1) {
@@ -47,20 +46,20 @@ int main(void) {
     }
 
     // Get the user to provide a name.
-    // char buf[2 * BUF_SIZE + 2]; // 2x to allow for usernames
-    // printf("Please enter a username: ");
-    // fflush(stdout);
-    // int num_read = read(STDIN_FILENO, buf, BUF_SIZE);
-    // if (num_read == 0) {
-    //     close(sock_fd);
-    //     exit(0);
-    // }
-    // buf[num_read] = '\0';
-    // if (write(sock_fd, buf, num_read) != num_read) {
-    //     perror("client: write");
-    //     close(sock_fd);
-    //     exit(1);
-    // }
+    char buf[2 * BUF_SIZE + 2]; // 2x to allow for usernames
+    printf("Please enter a username: ");
+    fflush(stdout);
+    int num_read = read(STDIN_FILENO, buf, BUF_SIZE);
+    if (num_read == 0) {
+        close(sock_fd);
+        exit(0);
+    }
+    buf[num_read] = '\0';
+    if (write(sock_fd, buf, num_read) != num_read) {
+        perror("client: write");
+        close(sock_fd);
+        exit(1);
+    }
     int w = write(sock_fd, buf, x);
     if (w != x) {
         perror("client: write");
