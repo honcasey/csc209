@@ -13,6 +13,7 @@
 #define BUF_SIZE 128
 
 int main(void) {
+    printf("Please enter a username: ");
     char buf[BUF_SIZE + 1];
     int x = read(STDIN_FILENO, buf, BUF_SIZE);
     if (x == -1) {
@@ -94,7 +95,6 @@ int main(void) {
                 break;
             }
             buf[num_read] = '\0';
-            printf("[Server] %s", buf);
 
             if (write(sock_fd, buf, num_read) != num_read) {
                 perror("client: write");
