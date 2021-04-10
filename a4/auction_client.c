@@ -231,6 +231,7 @@ int main(void) {
             printf("checkpoint 1\n");
             
             sock_fd = add_server(arg1, port);
+            max_fd = sock_fd;
             printf("sock_fd = %d\n", sock_fd);
             fd_set write_fds = all_fds;
             int write_ready = select(max_fd + 1, NULL, &write_fds, NULL, NULL); // check which fds ready to write to
@@ -239,7 +240,8 @@ int main(void) {
                 exit(1);
             }
 
-            if (FD_ISSET(sock_fd, &write_fds)) {
+            if (FD_ISSET(sock_fd, &write_fds)) { // if sock_fd is readable from
+                // not entering here
                 if (write(sock_fd, name, strlen(name) + 1) == -1) { // write username to server through sock_fd
                     perror("client: write");
                     close(sock_fd);
