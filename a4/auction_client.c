@@ -283,47 +283,35 @@ int main(void) {
                 char *ind;
                 int which = strtol(arg1, &ind, 10);
 
-                // fd_set write_fds = all_fds;
-                // FD_SET(sock_fd, &write_fds);
-                // max_fd++;
-                // int write_ready = select(max_fd + 1, NULL, &write_fds, NULL, 0); // check which fds ready to write to
-                // if (write_ready == -1) {
-                //     perror("server: select3");
-                //     exit(1);
-                // }
-
-                //if (FD_ISSET(sock_fd, &write_fds)) {
-                    // not entering here
-                    if (write(auc_data[which].sock_fd, arg2, strlen(arg2) + 1) == -1) { // write bid (arg2) to auction server stored at index (which) in auction_data array
-                        perror("client: bid write");
-                        close(sock_fd);
-                        exit(1);
-                    }
-                //}
+                if (write(auc_data[which].sock_fd, arg2, strlen(arg2) + 1) == -1) { // write bid (arg2) to auction server stored at index (which) in auction_data array
+                    perror("client: bid write");
+                    close(sock_fd);
+                    exit(1);
+                }
             }
             else if (com == QUIT) { // close open sockets and exit
                 close(sock_fd);
                 exit(0);
             }
-        }
 
-        for (int c = 0; c < MAX_AUCTIONS; c++) { // update each auction after each command
-            int client_fd = auc_data[c].sock_fd; 
-            if (client_fd > -1 && FD_ISSET(client_fd, &listen_fds)) { // if client_fd is readable from server
-                // never enters here
-                char buf[BUF_SIZE];
-                int r = read(client_fd, buf, BUF_SIZE); // read something from the server
-                if (r == 0) {
-                    break;
+            for (int c = 0; c < MAX_AUCTIONS; c++) { // update each auction after each command
+                int client_fd = auc_data[c].sock_fd; 
+                if (client_fd > -1 && FD_ISSET(client_fd, &listen_fds)) { // if client_fd is readable from server
+                    // never enters here
+                    char buf[BUF_SIZE];
+                    int r = read(client_fd, buf, BUF_SIZE); // read something from the server
+                    if (r == 0) {
+                        break;
+                    }
+                    buf[r] = '\0';
+                    // if (strncmp("Auction closed", buf, BUF_SIZE) == 0) {
+                    //     update_auction()
+                    // }
+                    // else {
+                        update_auction(buf, BUF_SIZE, auc_data, c);
+                        printf("updated auction\n");
+                    //}
                 }
-                buf[r] = '\0';
-                // if (strncmp("Auction closed", buf, BUF_SIZE) == 0) {
-                //     update_auction()
-                // }
-                // else {
-                    update_auction(buf, BUF_SIZE, auc_data, c);
-                    printf("updated auction\n");
-                //}
             }
         }
     }
