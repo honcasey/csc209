@@ -139,10 +139,11 @@ void print_auctions(struct auction_data *a, int size) {
      * server.  Use the follosing format string:
      *     "(%d) %s bid = %d\n", index, item, current bid
      * The array may have some elements where the auction has closed and
-     * should not be printed.
+     * should not be printed. <- **TO DO!!!**
      */
-    
-    
+    for (int i = 0; i < size; i++) {
+        printf("(%d) %s bid = %d\n", i, a[i].item, a[i].current_bid);
+    }
 }
 
 /* Process the input that was sent from the auction server at a[index].
@@ -152,7 +153,20 @@ void print_auctions(struct auction_data *a, int size) {
 void update_auction(char *buf, int size, struct auction_data *a, int index) {
     
     // TODO: Complete this function
+    if (index == 0) {
+        strncpy(a[index].item, buf, size); // copy item name to item field
+    }
+    char *ptr;
+    long bid = strtol(buf, &ptr, 10);
+    if (bid == 0) {
+        fprintf(stderr, "ERROR malformed bid: %s", buf);
+    }
+    else {
+        a[index].current_bid = bid;
+        printf("\nNew bid for %s [%d] is %d\n", a[index].item, index, a[index].current_bid);
+    }
     
+
     // fprintf(stderr, "ERROR malformed bid: %s", buf);
     // printf("\nNew bid for %s [%d] is %d (%d seconds left)\n",           );
 }
@@ -160,26 +174,70 @@ void update_auction(char *buf, int size, struct auction_data *a, int index) {
 int main(void) {
 
     char name[BUF_SIZE];
-
     // Declare and initialize necessary variables
     // TODO
+    char menu[BUF_SIZE]; // menu option (change BUF_SIZE to smaller?)
+    char *arg1 = NULL;
+    char *arg2 = NULL;
+    struct auction_data *auc_data = NULL; // array of auction_data structs
+    int i = 0;
+    char buf[BUF_SIZE];
+    int sock_fd;
 
     // Get the user to provide a name.
     printf("Please enter a username: ");
     fflush(stdout);
     int num_read = read(STDIN_FILENO, name, BUF_SIZE);
     if(num_read <= 0){
-        fprintf(stderr, "ERROR: read from stdin failed\n");
+        fprintf(stderr, "ERROR: name read from stdin failed\n");
         exit(1);
     }
-    print_menu();
 
+    print_menu();
     // TODO
     
-
     while(1) {
         print_prompt();
         // TODO
+        // check what menu command was chosen
+        int menu_read = read(STDIN_FILENO, menu, BUF_SIZE);
+        if (menu_read <= 0) {
+            fprintf(stderr, "ERROR: menu read from stdin failed\n");
+            exit(1);
+        }
+        int com = parse_command(menu, BUF_SIZE, arg1, arg2);
+        if (com == ADD) {
+            char *a2;
+            long port = strtol(arg2, &a2, 10); // convert arg2 to port int
+            if (port == 0) {
+                printf("invalid port number");
+                break;
+            }
+            sock_fd = add_server(arg1, port);
+            if (write(sock_fd, name, num_read) != num_read) { // write username to server
+                perror("client: write");
+                //exit(1);
+            }; 
+            update_auction(buf, BUF_SIZE, auc_data, i); // record new connection to auctions array 
+            i++;
+        }
+        else if (com == SHOW) {
+            print_auctions(auc_data, BUF_SIZE); // print current auction data to stdout
+            fflush(stdout);
+        }
+        else if (com == BID) {
+            char *ind;
+            long which = strtol(arg1, &ind, 10);
+            if (write(auc_data[which].sock_fd, arg2, menu_read) != menu_read) {
+                perror("client: bid write");
+                //exit(1);
+            }
+            // send bid to auction server stored at index in auction_data array
+        }
+        else if (com == QUIT) { // close open sockets and exit
+            close(sock_fd);
+            exit(0);
+        }
     }
     return 0; // Shoud never get here
 }
