@@ -296,25 +296,25 @@ int main(void) {
             else {
                 break;
             }
+        }
 
-            for (int c = 0; c < MAX_AUCTIONS; c++) { // update each auction after each command
-                int client_fd = auc_data[c].sock_fd; 
-                if (client_fd > -1 && FD_ISSET(client_fd, &listen_fds)) { // if client_fd is readable from server
-                    // never enters here
-                    char buf[BUF_SIZE];
-                    int r = read(client_fd, buf, BUF_SIZE); // read something from the server
-                    if (r == 0) {
-                        break;
-                    }
-                    buf[r] = '\0';
-                    // if (strncmp("Auction closed", buf, BUF_SIZE) == 0) {
-                    //     update_auction()
-                    // }
-                    // else {
-                        update_auction(buf, BUF_SIZE, auc_data, c);
-                        printf("updated auction\n");
-                    //}
+        for (int c = 0; c < MAX_AUCTIONS; c++) { // update each auction after each command
+            int client_fd = auc_data[c].sock_fd; 
+            if (client_fd > -1 && FD_ISSET(client_fd, &listen_fds)) { // if client_fd is readable from server
+                // never enters here
+                char buf[BUF_SIZE];
+                int r = read(client_fd, buf, BUF_SIZE); // read something from the server
+                if (r == 0) {
+                    break;
                 }
+                buf[r] = '\0';
+                // if (strncmp("Auction closed", buf, BUF_SIZE) == 0) {
+                //     update_auction()
+                // }
+                // else {
+                    update_auction(buf, BUF_SIZE, auc_data, c);
+                    printf("updated auction\n");
+                //}
             }
         }
     }
