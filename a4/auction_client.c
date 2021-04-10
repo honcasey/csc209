@@ -192,6 +192,7 @@ int main(void) {
         fprintf(stderr, "ERROR: name read from stdin failed\n");
         exit(1);
     }
+    printf("username is %s\n", name);
 
     print_menu();
     // TODO
@@ -213,13 +214,24 @@ int main(void) {
                 printf("invalid port number");
                 break;
             }
+            fd_set write_fds;
             sock_fd = add_server(arg1, port);
-            if (write(sock_fd, name, num_read) != num_read) { // write username to server
-                perror("client: write");
-                //exit(1);
-            }; 
-            update_auction(buf, BUF_SIZE, auc_data, i); // record new connection to auctions array 
-            i++;
+            FD_ZERO(&write_fds);
+            FD_SET(sock_fd, &write_fds);
+
+            int numfd;
+            if (select(numfd, NULL, &write_fds, NULL, NULL) != 1) { // put value of fds ready to write into write_fds
+                perror("select");
+                exit(1);
+            }
+            if (FD_ISSET(sock_fd, &write_fds)) { // if write fd is in the set sock_fd
+                if (write(sock_fd, name, num_read) != num_read) { // write username to server
+                    perror("client: write");
+                    //exit(1);
+                } 
+                update_auction(buf, BUF_SIZE, auc_data, i); // record new connection to auctions array 
+                i++;
+            }
         }
         else if (com == SHOW) {
             print_auctions(auc_data, BUF_SIZE); // print current auction data to stdout
