@@ -244,18 +244,15 @@ int main(void) {
             com = parse_command(menu, BUF_SIZE, arg1, arg2); // check what menu command was chosen
 
             if (com == ADD) {
-                printf("arg1 = %s, arg2 = %s", arg1, arg2);
                 char *a2;
                 long port = strtol(arg2, &a2, 10); // convert arg2 to port int
                 if (port == 0) {
                     printf("invalid port number");
                     break;
                 }
-                printf("checkpoint 1\n");
                 
                 sock_fd = add_server(arg1, port);
                 max_fd++;
-                printf("sock_fd = %d\n", sock_fd);
 
                 fd_set write_fds = all_fds;
                 FD_SET(sock_fd, &write_fds);
