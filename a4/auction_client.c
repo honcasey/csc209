@@ -242,75 +242,73 @@ int main(void) {
                 // break;
             }
             com = parse_command(menu, BUF_SIZE, arg1, arg2); // check what menu command was chosen
-        }
 
-        if (com == ADD) {
-            printf("arg1 = %s, arg2 = %s", arg1, arg2);
-            char *a2;
-            long port = strtol(arg2, &a2, 10); // convert arg2 to port int
-            if (port == 0) {
-                printf("invalid port number");
-                break;
-            }
-            printf("checkpoint 1\n");
-            
-            sock_fd = add_server(arg1, port);
-            max_fd++;
-            printf("sock_fd = %d\n", sock_fd);
+            if (com == ADD) {
+                printf("arg1 = %s, arg2 = %s", arg1, arg2);
+                char *a2;
+                long port = strtol(arg2, &a2, 10); // convert arg2 to port int
+                if (port == 0) {
+                    printf("invalid port number");
+                    break;
+                }
+                printf("checkpoint 1\n");
+                
+                sock_fd = add_server(arg1, port);
+                max_fd++;
+                printf("sock_fd = %d\n", sock_fd);
 
-            fd_set write_fds = all_fds;
-            FD_SET(sock_fd, &write_fds);
-            FD_SET(sock_fd, &listen_fds);
-            int write_ready = select(max_fd + 1, NULL, &write_fds, NULL, 0); // check which fds ready to write to
-            if (write_ready == -1) {
-                perror("server: select2");
-                exit(1);
-            }
-
-            if (FD_ISSET(sock_fd, &write_fds)) { // if sock_fd is readable from
-                if (write(sock_fd, name, strlen(name) + 1) == -1) { // write username to server through sock_fd
-                    perror("client: write");
-                    close(sock_fd);
-                    exit(1);
-                } 
-            }
-        }
-        else if (com == SHOW) {
-            print_auctions(auc_data, MAX_AUCTIONS); // print current auction data to stdout
-            fflush(stdout);
-        }
-        else if (com == BID) {
-            printf("arg1 = %s, arg2 = %s\n", arg1, arg2);
-            char *ind;
-            int which = strtol(arg1, &ind, 10);
-
-            // fd_set write_fds = all_fds;
-            // FD_SET(sock_fd, &write_fds);
-            // max_fd++;
-            // int write_ready = select(max_fd + 1, NULL, &write_fds, NULL, 0); // check which fds ready to write to
-            // if (write_ready == -1) {
-            //     perror("server: select3");
-            //     exit(1);
-            // }
-
-            //if (FD_ISSET(sock_fd, &write_fds)) {
-                // not entering here
-                if (write(auc_data[which].sock_fd, arg2, strlen(arg2) + 1) == -1) { // write bid (arg2) to auction server stored at index (which) in auction_data array
-                    perror("client: bid write");
-                    close(sock_fd);
+                fd_set write_fds = all_fds;
+                FD_SET(sock_fd, &write_fds);
+                FD_SET(sock_fd, &listen_fds);
+                int write_ready = select(max_fd + 1, NULL, &write_fds, NULL, 0); // check which fds ready to write to
+                if (write_ready == -1) {
+                    perror("server: select2");
                     exit(1);
                 }
-            //}
-        }
-        else if (com == QUIT) { // close open sockets and exit
-            close(sock_fd);
-            exit(0);
+
+                if (FD_ISSET(sock_fd, &write_fds)) { // if sock_fd is readable from
+                    if (write(sock_fd, name, strlen(name) + 1) == -1) { // write username to server through sock_fd
+                        perror("client: write");
+                        close(sock_fd);
+                        exit(1);
+                    } 
+                }
+            }
+            else if (com == SHOW) {
+                print_auctions(auc_data, MAX_AUCTIONS); // print current auction data to stdout
+                fflush(stdout);
+            }
+            else if (com == BID) {
+                printf("arg1 = %s, arg2 = %s\n", arg1, arg2);
+                char *ind;
+                int which = strtol(arg1, &ind, 10);
+
+                // fd_set write_fds = all_fds;
+                // FD_SET(sock_fd, &write_fds);
+                // max_fd++;
+                // int write_ready = select(max_fd + 1, NULL, &write_fds, NULL, 0); // check which fds ready to write to
+                // if (write_ready == -1) {
+                //     perror("server: select3");
+                //     exit(1);
+                // }
+
+                //if (FD_ISSET(sock_fd, &write_fds)) {
+                    // not entering here
+                    if (write(auc_data[which].sock_fd, arg2, strlen(arg2) + 1) == -1) { // write bid (arg2) to auction server stored at index (which) in auction_data array
+                        perror("client: bid write");
+                        close(sock_fd);
+                        exit(1);
+                    }
+                //}
+            }
+            else if (com == QUIT) { // close open sockets and exit
+                close(sock_fd);
+                exit(0);
+            }
         }
 
         for (int c = 0; c < MAX_AUCTIONS; c++) { // update each auction after each command
-
-            int client_fd = auc_data[c].sock_fd; // **seg-fault = auc_data is null at this point
-
+            int client_fd = auc_data[c].sock_fd; 
             if (client_fd > -1 && FD_ISSET(client_fd, &listen_fds)) { // if client_fd is readable from server
                 // never enters here
                 char buf[BUF_SIZE];
