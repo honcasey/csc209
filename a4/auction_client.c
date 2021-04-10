@@ -186,8 +186,6 @@ int main(void) {
     char arg1[BUF_SIZE];
     char arg2[BUF_SIZE];
     struct auction_data *auc_data = NULL; // array of auction_data structs
-    int i = 0;
-    char buf[BUF_SIZE];
     int sock_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (sock_fd < 0) {
         perror("server: socket");
