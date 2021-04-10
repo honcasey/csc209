@@ -141,13 +141,8 @@ void print_auctions(struct auction_data *a, int size) {
      * The array may have some elements where the auction has closed and
      * should not be printed. <- **TO DO!!!**
      */
-    if (size == 0) {
-        printf("No current auctions\n");
-    }
-    else {
-        for (int i = 0; i < size; i++) {
-            printf("(%d) %s bid = %d\n", i, a[i].item, a[i].current_bid);
-        }
+    for (int i = 0; i < size; i++) {
+        printf("(%d) %s bid = %d\n", i, a[i].item, a[i].current_bid);
     }
 }
 
@@ -186,12 +181,7 @@ int main(void) {
     char arg2[BUF_SIZE];
     struct auction_data *auc_data = NULL; // array of auction_data structs
     int com; // command
-
-    int sock_fd = socket(AF_INET, SOCK_STREAM, 0);
-    if (sock_fd < 0) {
-        perror("server: socket");
-        exit(1);
-    }
+    int sock_fd;
 
     // Get the user to provide a name.
     printf("Please enter a username: ");
@@ -205,10 +195,10 @@ int main(void) {
     print_menu();
     // TODO
     // initialize set of file descs
-    int max_fd = sock_fd;
+    int max_fd = STDIN_FILENO;
     fd_set all_fds;
-    FD_ZERO(&all_fds);
-    FD_SET(sock_fd, &all_fds);
+    FD_ZERO(&all_fds); // clears all fds in the set
+    FD_SET(max_fd, &all_fds); // add max_fd into set of all fds
 
     while(1) {
         print_prompt();
@@ -221,6 +211,7 @@ int main(void) {
 
         // if original socket, create a new connection
         if (FD_ISSET(STDIN_FILENO, &listen_fds)) { // if stdin is readable from, read the string and set 
+        // not entering this loop
             char menu[BUF_SIZE]; // menu option 
             int menu_read = read(STDIN_FILENO, menu, BUF_SIZE); // read inputted command from stdin into menu
             if (menu_read == 0) {
