@@ -142,7 +142,7 @@ void print_auctions(struct auction_data *a, int size) {
      * should not be printed. <- **TO DO!!!**
      */
     for (int i = 0; i < size; i++) {
-        printf("(%d) %s bid = %d\n", i, a[i].item, a[i].current_bid);
+        printf("(auction %d) item %s bid = %d\n", i, a[i].item, a[i].current_bid);
     }
 }
 
@@ -157,18 +157,20 @@ void update_auction(char *buf, int size, struct auction_data *a, int index) {
     if (strncmp(a[index].item, "empty", 6) == 0) { // if it's the first message
         strncpy(a[index].item, buf, size); // copy item name to item field
     }
-    char *ptr;
-    long bid = strtol(buf, &ptr, 10); // convert bid (buf) to int
-    if (bid <= 0) {
-        fprintf(stderr, "ERROR malformed bid: %s", buf);
+    if (strncmp(buf, "Auction closed", strlen("Auction closed")) == 0) { // if auction is closed
+        strncpy(a[index].item, "closed", strlen("closed")); // change item name to "closed"
     }
     else {
-        a[index].current_bid = bid;
-        printf("\nNew bid for %s [%d] is %d ( seconds left)\n", a[index].item, index, a[index].current_bid);
+        char *ptr;
+        long bid = strtol(buf, &ptr, 10); // convert bid (buf) to int
+        if (bid <= 0) {
+            fprintf(stderr, "ERROR malformed bid: %s", buf);
+        }
+        else {
+            a[index].current_bid = bid;
+            printf("\nNew bid for %s [%d] is %d ( seconds left)\n", a[index].item, index, a[index].current_bid);
+        }
     }
-    
-    // fprintf(stderr, "ERROR malformed bid: %s", buf);
-    // printf("\nNew bid for %s [%d] is %d (%d seconds left)\n",           );
 }
 
 int main(void) {
@@ -258,7 +260,7 @@ int main(void) {
             }
         }
         else if (com == SHOW) {
-            print_auctions(auc_data, BUF_SIZE); // print current auction data to stdout
+            print_auctions(auc_data, MAX_AUCTIONS); // print current auction data to stdout
             fflush(stdout);
         }
         else if (com == BID) {
@@ -297,12 +299,12 @@ int main(void) {
                     break;
                 }
                 buf[r] = '\0';
-                if (strncmp("Auction closed", buf, BUF_SIZE)) {
-                    break;
-                }
-                else {
+                // if (strncmp("Auction closed", buf, BUF_SIZE) == 0) {
+                //     update_auction()
+                // }
+                // else {
                     update_auction(buf, BUF_SIZE, auc_data, c);
-                }
+                //}
             }
         }
     }
