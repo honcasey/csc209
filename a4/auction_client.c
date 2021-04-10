@@ -154,20 +154,19 @@ void update_auction(char *buf, int size, struct auction_data *a, int index) {
     
     // TODO: Complete this function
     
-    if (index == 0) {
+    if (strncmp(a[index].item, "empty", 6) == 0) { // if it's the first message
         strncpy(a[index].item, buf, size); // copy item name to item field
     }
     char *ptr;
-    long bid = strtol(buf, &ptr, 10);
-    if (bid == 0) {
+    long bid = strtol(buf, &ptr, 10); // convert bid (buf) to int
+    if (bid <= 0) {
         fprintf(stderr, "ERROR malformed bid: %s", buf);
     }
     else {
         a[index].current_bid = bid;
-        printf("\nNew bid for %s [%d] is %d\n", a[index].item, index, a[index].current_bid);
+        printf("\nNew bid for %s [%d] is %d ( seconds left)\n", a[index].item, index, a[index].current_bid);
     }
     
-
     // fprintf(stderr, "ERROR malformed bid: %s", buf);
     // printf("\nNew bid for %s [%d] is %d (%d seconds left)\n",           );
 }
@@ -179,7 +178,16 @@ int main(void) {
     // TODO
     char arg1[BUF_SIZE];
     char arg2[BUF_SIZE];
-    struct auction_data *auc_data = NULL; // array of auction_data structs
+
+    struct auction_data auc_data[MAX_AUCTIONS]; // array of auction_data structs
+    for (int k = 0; k < MAX_AUCTIONS; k++) {
+        struct auction_data auc; // initialize empty auction_data struct
+        auc.current_bid = 0;
+        char empty[10] = "empty";
+        strncpy(auc.item, empty, 10);
+        auc_data[k] = auc;
+    }
+    
     int com; // command
     int sock_fd;
 
@@ -230,7 +238,7 @@ int main(void) {
             printf("checkpoint 1\n");
             
             sock_fd = add_server(arg1, port);
-            max_fd = sock_fd;
+            max_fd++;
             printf("sock_fd = %d\n", sock_fd);
 
             fd_set write_fds = all_fds;
@@ -242,7 +250,6 @@ int main(void) {
             }
 
             if (FD_ISSET(sock_fd, &write_fds)) { // if sock_fd is readable from
-                // not entering here??
                 if (write(sock_fd, name, strlen(name) + 1) == -1) { // write username to server through sock_fd
                     perror("client: write");
                     close(sock_fd);
@@ -280,10 +287,12 @@ int main(void) {
         }
 
         for (int c = 0; c < MAX_AUCTIONS; c++) { // update each auction after each command
-            int client_fd = auc_data[c].sock_fd;
-            if (client_fd > -1 && FD_ISSET(client_fd, &listen_fds)) { // if client_fd is readable from
+
+            int client_fd = auc_data[c].sock_fd; // **seg-fault = auc_data is null at this point
+
+            if (client_fd > -1 && FD_ISSET(client_fd, &listen_fds)) { // if client_fd is readable from server
                 char buf[BUF_SIZE];
-                int r = read(client_fd, buf, BUF_SIZE);
+                int r = read(client_fd, buf, BUF_SIZE); // read something from the server
                 if (r == 0) {
                     break;
                 }
