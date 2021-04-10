@@ -184,7 +184,7 @@ void update_auction(char *buf, int size, struct auction_data *a, int index) {
         int curr_time = strtol(time, &ptr2, 10);
         
         printf("\nNew bid for %s [%d] is %d (%d seconds left)\n", item, index, curr_bid, curr_time);
-        
+        fflush(stdout);
     }
 }
 
@@ -292,6 +292,9 @@ int main(void) {
             else if (com == QUIT) { // close open sockets and exit
                 close(sock_fd);
                 exit(0);
+            }
+            else {
+                break;
             }
 
             for (int c = 0; c < MAX_AUCTIONS; c++) { // update each auction after each command
