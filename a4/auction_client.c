@@ -279,26 +279,27 @@ int main(void) {
             fflush(stdout);
         }
         else if (com == BID) {
-            printf("arg1 = %s, arg2 = %s", arg1, arg2);
+            printf("arg1 = %s, arg2 = %s\n", arg1, arg2);
             char *ind;
             int which = strtol(arg1, &ind, 10);
 
-            fd_set write_fds = all_fds;
-            FD_SET(sock_fd, &write_fds);
-            max_fd++;
-            int write_ready = select(max_fd + 1, NULL, &write_fds, NULL, NULL); // check which fds ready to write to
-            if (write_ready == -1) {
-                perror("server: select3");
-                exit(1);
-            }
+            // fd_set write_fds = all_fds;
+            // FD_SET(sock_fd, &write_fds);
+            // max_fd++;
+            // int write_ready = select(max_fd + 1, NULL, &write_fds, NULL, 0); // check which fds ready to write to
+            // if (write_ready == -1) {
+            //     perror("server: select3");
+            //     exit(1);
+            // }
 
-            if (FD_ISSET(sock_fd, &write_fds)) {
+            //if (FD_ISSET(sock_fd, &write_fds)) {
+                // not entering here
                 if (write(auc_data[which].sock_fd, arg2, strlen(arg2) + 1) == -1) { // write bid (arg2) to auction server stored at index (which) in auction_data array
                     perror("client: bid write");
                     close(sock_fd);
                     exit(1);
                 }
-            }
+            //}
         }
         else if (com == QUIT) { // close open sockets and exit
             close(sock_fd);
