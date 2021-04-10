@@ -141,8 +141,13 @@ void print_auctions(struct auction_data *a, int size) {
      * The array may have some elements where the auction has closed and
      * should not be printed. <- **TO DO!!!**
      */
-    for (int i = 0; i < size; i++) {
-        printf("(%d) %s bid = %d\n", i, a[i].item, a[i].current_bid);
+    if (size == 0) {
+        printf("No current auctions\n");
+    }
+    else {
+        for (int i = 0; i < size; i++) {
+            printf("(%d) %s bid = %d\n", i, a[i].item, a[i].current_bid);
+        }
     }
 }
 
@@ -192,7 +197,6 @@ int main(void) {
         fprintf(stderr, "ERROR: name read from stdin failed\n");
         exit(1);
     }
-    printf("username is %s\n", name);
 
     print_menu();
     // TODO
@@ -214,22 +218,28 @@ int main(void) {
                 printf("invalid port number");
                 break;
             }
+            printf("checkpoint 1\n");
             fd_set write_fds;
             sock_fd = add_server(arg1, port);
+            printf("sock_fd = %d\n", sock_fd);
             FD_ZERO(&write_fds);
             FD_SET(sock_fd, &write_fds);
 
-            int numfd = sock_fd;
-            if (select(numfd, NULL, &write_fds, NULL, NULL) != 1) { // put value of fds ready to write into write_fds
+            int numfd = 1;
+            int x = select(numfd, NULL, &write_fds, NULL, NULL);
+            if (x != 1) { // put value of fds ready to write into write_fds
                 perror("select");
                 exit(1);
             }
+            printf("x = %d\n", x);
             if (FD_ISSET(sock_fd, &write_fds)) { // if write fd is in the set sock_fd
+                printf("checkpoint 4\n");
                 if (write(sock_fd, name, num_read) != num_read) { // write username to server
                     perror("client: write");
                     //exit(1);
                 } 
                 update_auction(buf, BUF_SIZE, auc_data, i); // record new connection to auctions array 
+                printf("updated %s at fd %i to bid %s\n", auc_data[i].item, auc_data[i].sock_fd, buf);
                 i++;
             }
         }
