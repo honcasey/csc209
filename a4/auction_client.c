@@ -260,6 +260,7 @@ int main(void) {
 
             fd_set write_fds = all_fds;
             FD_SET(sock_fd, &write_fds);
+            FD_SET(sock_fd, &listen_fds);
             int write_ready = select(max_fd + 1, NULL, &write_fds, NULL, 0); // check which fds ready to write to
             if (write_ready == -1) {
                 perror("server: select2");
@@ -311,6 +312,7 @@ int main(void) {
             int client_fd = auc_data[c].sock_fd; // **seg-fault = auc_data is null at this point
 
             if (client_fd > -1 && FD_ISSET(client_fd, &listen_fds)) { // if client_fd is readable from server
+                // never enters here
                 char buf[BUF_SIZE];
                 int r = read(client_fd, buf, BUF_SIZE); // read something from the server
                 if (r == 0) {
