@@ -281,9 +281,13 @@ int main(void) {
         else if (com == BID) {
             printf("arg1 = %s, arg2 = %s", arg1, arg2);
             char *ind;
-            long which = strtol(arg1, &ind, 10);
+            int which = strtol(arg1, &ind, 10);
+            char *ptr;
+            int bid = strtol(arg2, &ptr, 10);
 
             fd_set write_fds = all_fds;
+            FD_SET(sock_fd, &write_fds);
+            max_fd++;
             int write_ready = select(max_fd + 1, NULL, &write_fds, NULL, NULL); // check which fds ready to write to
             if (write_ready == -1) {
                 perror("server: select3");
@@ -291,7 +295,7 @@ int main(void) {
             }
 
             if (FD_ISSET(sock_fd, &write_fds)) {
-                if (write(auc_data[which].sock_fd, arg2, strlen(arg2) + 1) == -1) { // write bid (arg2) to auction server stored at index (which) in auction_data array
+                if (write(auc_data[which].sock_fd, bid, strlen(arg2) + 1) == -1) { // write bid (arg2) to auction server stored at index (which) in auction_data array
                     perror("client: bid write");
                     close(sock_fd);
                     exit(1);
@@ -319,6 +323,7 @@ int main(void) {
                 // }
                 // else {
                     update_auction(buf, BUF_SIZE, auc_data, c);
+                    printf("updated auction\n");
                 //}
             }
         }
