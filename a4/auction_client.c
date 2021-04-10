@@ -183,17 +183,21 @@ int main(void) {
     // Declare and initialize necessary variables
     // TODO
     char menu[BUF_SIZE]; // menu option (change BUF_SIZE to smaller?)
-    char *arg1 = NULL;
-    char *arg2 = NULL;
+    char arg1[BUF_SIZE];
+    char arg2[BUF_SIZE];
     struct auction_data *auc_data = NULL; // array of auction_data structs
     int i = 0;
     char buf[BUF_SIZE];
-    int sock_fd;
+    int sock_fd = socket(AF_INET, SOCK_STREAM, 0);
+    if (sock_fd < 0) {
+        perror("server: socket");
+        exit(1);
+    }
 
     // Get the user to provide a name.
     printf("Please enter a username: ");
     fflush(stdout);
-    int num_read = read(STDIN_FILENO, name, BUF_SIZE);
+    int num_read = read(STDIN_FILENO, name, BUF_SIZE); // returns number of bytes of username
     if(num_read <= 0){
         fprintf(stderr, "ERROR: name read from stdin failed\n");
         exit(1);
@@ -201,21 +205,35 @@ int main(void) {
     name[num_read] = '\0';
     print_menu();
     // TODO
-    
+    // initialize set of file descs
+    int max_fd = sock_fd;
+    fd_set all_fds;
+    FD_ZERO(&all_fds);
+    FD_SET(sock_fd, &all_fds);
+
     while(1) {
+        fd_set listen_fds = all_fds;
         print_prompt();
         
-        // check what menu command was chosen
-        int menu_read = read(STDIN_FILENO, menu, BUF_SIZE);
-        if (menu_read <= 0) {
-            fprintf(stderr, "ERROR: menu read from stdin failed\n");
+        // select gives which fds are ready to be read from
+        int nready = select(max_fd + 1, &listen_fds, NULL, NULL, NULL);
+        if (nready == -1) {
+            perror("server: select1");
             exit(1);
         }
-        menu[menu_read] = '\0';
-        int com = parse_command(menu, BUF_SIZE, arg1, arg2);
 
+        // if original socket, create a new connection
+        if (FD_ISSET(STDIN_FILENO, &listen_fds)) { // if stdin is readable from, read the string and set 
+            int menu_read = read(STDIN_FILENO, menu, BUF_SIZE);
+            if (menu_read == 0) {
+                break;
+            }
+        }
+
+        int com = parse_command(menu, BUF_SIZE, arg1, arg2); // check what menu command was chosen
+        
         if (com == ADD) {
-            printf("arg1 = %s, arg2 = %s", arg1, arg2)
+            printf("arg1 = %s, arg2 = %s", arg1, arg2);
             char *a2;
             long port = strtol(arg2, &a2, 10); // convert arg2 to port int
             if (port == 0) {
@@ -226,48 +244,66 @@ int main(void) {
             
             sock_fd = add_server(arg1, port);
             printf("sock_fd = %d\n", sock_fd);
-            
-            if (write(sock_fd, name, num_read) != num_read) { // write username to server
-                perror("client: write");
-                close(sock_fd);
+            fd_set write_fds = all_fds;
+            int write_ready = select(max_fd + 1, NULL, &write_fds, NULL, NULL); // check which fds ready to write to
+            if (write_ready == -1) {
+                perror("server: select2");
                 exit(1);
-            } 
-            int max_fd = sock_fd;
-            fd_set listen_fds;
-            FD_ZERO(&listen_fds);
-            FD_SET(sock_fd, &listen_fds);
-            int num_ready = select(max_fd + 1, NULL, &listen_fds, NULL, NULL);
-            if (num_ready == -1) { // put value of fds ready to write into write_fds
-                perror("select");
-                close(sock_fd);
-                exit(1);
-            }
-            if (FD_ISSET(sock_fd, &listen_fds)) {
-                int num_read = read(sock_fd, buf, BUF_SIZE);
-                buf[num_read] = '\0';
-                printf("read from server\n");
             }
 
-            update_auction(buf, BUF_SIZE, auc_data, i); // record new connection to auctions array 
-            printf("updated %s at fd %i to bid %s\n", auc_data[i].item, auc_data[i].sock_fd, buf);
-            i++;
+            if (FD_ISSET(sock_fd, &write_fds)) {
+                if (write(sock_fd, name, strlen(name) + 1) == -1) { // write username to server through sock_fd
+                    perror("client: write");
+                    close(sock_fd);
+                    exit(1);
+                } 
+            }
         }
         else if (com == SHOW) {
             print_auctions(auc_data, BUF_SIZE); // print current auction data to stdout
             fflush(stdout);
         }
         else if (com == BID) {
+            printf("arg1 = %s, arg2 = %s", arg1, arg2);
             char *ind;
             long which = strtol(arg1, &ind, 10);
-            if (write(auc_data[which].sock_fd, arg2, menu_read) != menu_read) {
-                perror("client: bid write");
-                //exit(1);
+
+            fd_set write_fds = all_fds;
+            int write_ready = select(max_fd + 1, NULL, &write_fds, NULL, NULL); // check which fds ready to write to
+            if (write_ready == -1) {
+                perror("server: select3");
+                exit(1);
             }
-            // send bid to auction server stored at index in auction_data array
+
+            if (FD_ISSET(sock_fd, &write_fds)) {
+                if (write(auc_data[which].sock_fd, arg2, strlen(arg2) + 1) == -1) { // write bid (arg2) to auction server stored at index (which) in auction_data array
+                    perror("client: bid write");
+                    close(sock_fd);
+                    exit(1);
+                }
+            }
         }
         else if (com == QUIT) { // close open sockets and exit
             close(sock_fd);
             exit(0);
+        }
+
+        for (int c = 0; c < MAX_AUCTIONS; c++) { // update each auction after each command
+            int client_fd = auc_data[c].sock_fd;
+            if (client_fd > -1 && FD_ISSET(client_fd, &listen_fds)) { // if client_fd is readable from
+                char buf[BUF_SIZE];
+                int r = read(client_fd, buf, BUF_SIZE);
+                if (r == 0) {
+                    break;
+                }
+                buf[r] = '\0';
+                if (strncmp("Auction closed", buf, BUF_SIZE)) {
+                    break;
+                }
+                else {
+                    update_auction(buf, BUF_SIZE, auc_data, c);
+                }
+            }
         }
     }
     return 0; // Shoud never get here
