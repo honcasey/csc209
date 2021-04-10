@@ -219,7 +219,7 @@ int main(void) {
             FD_ZERO(&write_fds);
             FD_SET(sock_fd, &write_fds);
 
-            int numfd;
+            int numfd = sock_fd;
             if (select(numfd, NULL, &write_fds, NULL, NULL) != 1) { // put value of fds ready to write into write_fds
                 perror("select");
                 exit(1);
