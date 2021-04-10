@@ -186,6 +186,8 @@ int main(void) {
     char arg1[BUF_SIZE];
     char arg2[BUF_SIZE];
     struct auction_data *auc_data = NULL; // array of auction_data structs
+    int com; // command
+
     int sock_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (sock_fd < 0) {
         perror("server: socket");
@@ -222,14 +224,13 @@ int main(void) {
 
         // if original socket, create a new connection
         if (FD_ISSET(STDIN_FILENO, &listen_fds)) { // if stdin is readable from, read the string and set 
-            int menu_read = read(STDIN_FILENO, menu, BUF_SIZE);
+            int menu_read = read(STDIN_FILENO, menu, BUF_SIZE); // read inputted command from stdin into menu
             if (menu_read == 0) {
                 break;
             }
+            com = parse_command(menu, BUF_SIZE, arg1, arg2); // check what menu command was chosen
         }
 
-        int com = parse_command(menu, BUF_SIZE, arg1, arg2); // check what menu command was chosen
-        
         if (com == ADD) {
             printf("arg1 = %s, arg2 = %s", arg1, arg2);
             char *a2;
