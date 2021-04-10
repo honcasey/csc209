@@ -142,7 +142,11 @@ void print_auctions(struct auction_data *a, int size) {
      * should not be printed. <- **TO DO!!!**
      */
     for (int i = 0; i < size; i++) {
-        printf("(auction %d) item %s bid = %d\n", i, a[i].item, a[i].current_bid);
+        if (strncmp(a[i].item, "empty", sizeof("empty")) != 0) { // check for closed / empty auctions
+            if (strncmp(a[i].item, "closed", sizeof("closed")) != 0) {
+                printf("(auction %d) item %s bid = %d\n", i, a[i].item, a[i].current_bid);
+            }
+        }
     }
 }
 
@@ -161,15 +165,26 @@ void update_auction(char *buf, int size, struct auction_data *a, int index) {
         strncpy(a[index].item, "closed", strlen("closed")); // change item name to "closed"
     }
     else {
+        char *item = strtok(buf, " "); // split up server prep_bid string
+        printf("item = %s", item);
+
+        char *bid = strtok(buf, " ");
         char *ptr;
-        long bid = strtol(buf, &ptr, 10); // convert bid (buf) to int
-        if (bid <= 0) {
+        int curr_bid = strtol(bid, &ptr, 10); // convert bid to int
+        if (curr_bid <= 0) {
             fprintf(stderr, "ERROR malformed bid: %s", buf);
         }
         else {
-            a[index].current_bid = bid;
-            printf("\nNew bid for %s [%d] is %d ( seconds left)\n", a[index].item, index, a[index].current_bid);
+            a[index].current_bid = curr_bid;
         }
+        printf("bid = %s", bid);
+        
+        char *time = strtok(buf, " ");
+        char *ptr2;
+        int curr_time = strtol(time, &ptr2, 10);
+        
+        printf("\nNew bid for %s [%d] is %d (%d seconds left)\n", item, index, curr_bid, curr_time);
+        
     }
 }
 
