@@ -182,7 +182,6 @@ int main(void) {
     char name[BUF_SIZE];
     // Declare and initialize necessary variables
     // TODO
-    char menu[BUF_SIZE]; // menu option (change BUF_SIZE to smaller?)
     char arg1[BUF_SIZE];
     char arg2[BUF_SIZE];
     struct auction_data *auc_data = NULL; // array of auction_data structs
@@ -212,11 +211,9 @@ int main(void) {
     FD_SET(sock_fd, &all_fds);
 
     while(1) {
-        fd_set listen_fds = all_fds;
         print_prompt();
-        
-        // select gives which fds are ready to be read from
-        int nready = select(max_fd + 1, &listen_fds, NULL, NULL, NULL);
+        fd_set listen_fds = all_fds;
+        int nready = select(max_fd + 1, &listen_fds, NULL, NULL, 0); // select gives which fds are ready to be read from
         if (nready == -1) {
             perror("server: select1");
             exit(1);
@@ -224,9 +221,10 @@ int main(void) {
 
         // if original socket, create a new connection
         if (FD_ISSET(STDIN_FILENO, &listen_fds)) { // if stdin is readable from, read the string and set 
+            char menu[BUF_SIZE]; // menu option 
             int menu_read = read(STDIN_FILENO, menu, BUF_SIZE); // read inputted command from stdin into menu
             if (menu_read == 0) {
-                break;
+                // break;
             }
             com = parse_command(menu, BUF_SIZE, arg1, arg2); // check what menu command was chosen
         }
