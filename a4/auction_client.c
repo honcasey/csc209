@@ -158,6 +158,7 @@ void print_auctions(struct auction_data *a, int size) {
 void update_auction(char *buf, int size, struct auction_data *a, int index) {
     
     // TODO: Complete this function
+    
     if (index == 0) {
         strncpy(a[index].item, buf, size); // copy item name to item field
     }
@@ -197,21 +198,24 @@ int main(void) {
         fprintf(stderr, "ERROR: name read from stdin failed\n");
         exit(1);
     }
-
+    name[num_read] = '\0';
     print_menu();
     // TODO
     
     while(1) {
         print_prompt();
-        // TODO
+        
         // check what menu command was chosen
         int menu_read = read(STDIN_FILENO, menu, BUF_SIZE);
         if (menu_read <= 0) {
             fprintf(stderr, "ERROR: menu read from stdin failed\n");
             exit(1);
         }
+        menu[menu_read] = '\0';
         int com = parse_command(menu, BUF_SIZE, arg1, arg2);
+
         if (com == ADD) {
+            printf("arg1 = %s, arg2 = %s", arg1, arg2)
             char *a2;
             long port = strtol(arg2, &a2, 10); // convert arg2 to port int
             if (port == 0) {
@@ -219,29 +223,34 @@ int main(void) {
                 break;
             }
             printf("checkpoint 1\n");
-            fd_set write_fds;
+            
             sock_fd = add_server(arg1, port);
             printf("sock_fd = %d\n", sock_fd);
-            FD_ZERO(&write_fds);
-            FD_SET(sock_fd, &write_fds);
-
-            int numfd = 1;
-            int x = select(numfd, NULL, &write_fds, NULL, NULL);
-            if (x != 1) { // put value of fds ready to write into write_fds
+            
+            if (write(sock_fd, name, num_read) != num_read) { // write username to server
+                perror("client: write");
+                close(sock_fd);
+                exit(1);
+            } 
+            int max_fd = sock_fd;
+            fd_set listen_fds;
+            FD_ZERO(&listen_fds);
+            FD_SET(sock_fd, &listen_fds);
+            int num_ready = select(max_fd + 1, NULL, &listen_fds, NULL, NULL);
+            if (num_ready == -1) { // put value of fds ready to write into write_fds
                 perror("select");
+                close(sock_fd);
                 exit(1);
             }
-            printf("x = %d\n", x);
-            if (FD_ISSET(sock_fd, &write_fds)) { // if write fd is in the set sock_fd
-                printf("checkpoint 4\n");
-                if (write(sock_fd, name, num_read) != num_read) { // write username to server
-                    perror("client: write");
-                    //exit(1);
-                } 
-                update_auction(buf, BUF_SIZE, auc_data, i); // record new connection to auctions array 
-                printf("updated %s at fd %i to bid %s\n", auc_data[i].item, auc_data[i].sock_fd, buf);
-                i++;
+            if (FD_ISSET(sock_fd, &listen_fds)) {
+                int num_read = read(sock_fd, buf, BUF_SIZE);
+                buf[num_read] = '\0';
+                printf("read from server\n");
             }
+
+            update_auction(buf, BUF_SIZE, auc_data, i); // record new connection to auctions array 
+            printf("updated %s at fd %i to bid %s\n", auc_data[i].item, auc_data[i].sock_fd, buf);
+            i++;
         }
         else if (com == SHOW) {
             print_auctions(auc_data, BUF_SIZE); // print current auction data to stdout
