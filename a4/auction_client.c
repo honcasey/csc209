@@ -211,7 +211,6 @@ int main(void) {
 
         // if original socket, create a new connection
         if (FD_ISSET(STDIN_FILENO, &listen_fds)) { // if stdin is readable from, read the string and set 
-        // not entering this loop
             char menu[BUF_SIZE]; // menu option 
             int menu_read = read(STDIN_FILENO, menu, BUF_SIZE); // read inputted command from stdin into menu
             if (menu_read == 0) {
@@ -233,15 +232,17 @@ int main(void) {
             sock_fd = add_server(arg1, port);
             max_fd = sock_fd;
             printf("sock_fd = %d\n", sock_fd);
+
             fd_set write_fds = all_fds;
-            int write_ready = select(max_fd + 1, NULL, &write_fds, NULL, NULL); // check which fds ready to write to
+            FD_SET(sock_fd, &write_fds);
+            int write_ready = select(max_fd + 1, NULL, &write_fds, NULL, 0); // check which fds ready to write to
             if (write_ready == -1) {
                 perror("server: select2");
                 exit(1);
             }
 
             if (FD_ISSET(sock_fd, &write_fds)) { // if sock_fd is readable from
-                // not entering here
+                // not entering here??
                 if (write(sock_fd, name, strlen(name) + 1) == -1) { // write username to server through sock_fd
                     perror("client: write");
                     close(sock_fd);
