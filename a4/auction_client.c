@@ -265,14 +265,19 @@ int main(void) {
                     perror("server: select2");
                     exit(1);
                 }
-
-                if (FD_ISSET(sock_fd, &write_fds)) { // if sock_fd is readable from
-                    if (write(sock_fd, name, strlen(name) + 1) == -1) { // write username to server through sock_fd
-                        perror("client: write");
-                        close(sock_fd);
-                        exit(1);
-                    } 
+                int read_ready = select(max_fd + 1, &listen_fds, NULL, NULL, 0);
+                if (read_ready == -1) {
+                    perror("server:select2");
+                    exit(1);
                 }
+
+                //if (FD_ISSET(sock_fd, &write_fds)) { // if sock_fd is readable from
+                if (write(sock_fd, name, strlen(name) + 1) == -1) { // write username to server through sock_fd
+                    perror("client: write");
+                    close(sock_fd);
+                    exit(1);
+                } 
+                //}
             }
             else if (com == SHOW) {
                 print_auctions(auc_data, MAX_AUCTIONS); // print current auction data to stdout
@@ -301,20 +306,14 @@ int main(void) {
         for (int c = 0; c < MAX_AUCTIONS; c++) { // update each auction after each command
             int client_fd = auc_data[c].sock_fd; 
             if (client_fd > -1 && FD_ISSET(client_fd, &listen_fds)) { // if client_fd is readable from server
-                // never enters here
                 char buf[BUF_SIZE];
                 int r = read(client_fd, buf, BUF_SIZE); // read something from the server
                 if (r == 0) {
                     break;
                 }
                 buf[r] = '\0';
-                // if (strncmp("Auction closed", buf, BUF_SIZE) == 0) {
-                //     update_auction()
-                // }
-                // else {
-                    update_auction(buf, BUF_SIZE, auc_data, c);
-                    printf("updated auction\n");
-                //}
+                update_auction(buf, BUF_SIZE, auc_data, c);
+                printf("updated auction\n");
             }
         }
     }
