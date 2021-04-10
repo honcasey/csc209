@@ -282,8 +282,6 @@ int main(void) {
             printf("arg1 = %s, arg2 = %s", arg1, arg2);
             char *ind;
             int which = strtol(arg1, &ind, 10);
-            char *ptr;
-            int bid = strtol(arg2, &ptr, 10);
 
             fd_set write_fds = all_fds;
             FD_SET(sock_fd, &write_fds);
@@ -295,7 +293,7 @@ int main(void) {
             }
 
             if (FD_ISSET(sock_fd, &write_fds)) {
-                if (write(auc_data[which].sock_fd, bid, strlen(arg2) + 1) == -1) { // write bid (arg2) to auction server stored at index (which) in auction_data array
+                if (write(auc_data[which].sock_fd, arg2, strlen(arg2) + 1) == -1) { // write bid (arg2) to auction server stored at index (which) in auction_data array
                     perror("client: bid write");
                     close(sock_fd);
                     exit(1);
