@@ -158,26 +158,26 @@ void update_auction(char *buf, int size, struct auction_data *a, int index) {
     
     // TODO: Complete this function
     
-    if (strncmp(a[index].item, "empty", 6) == 0) { // if it's the first message
+    if (strncmp(a[index].item, "empty", 6) == 0) { // if it's the first message from the server
         strncpy(a[index].item, buf, size); // copy item name to item field
     }
     else if (strncmp(buf, "Auction closed", strlen("Auction closed")) == 0) { // if auction is closed
         strncpy(a[index].item, "closed", strlen("closed")); // change item name to "closed"
     }
     else {
-        char *item = strtok(buf, " "); // split up server prep_bid string
-        printf("item = %s", item);
-
+        char *item = strtok(buf, " "); // split up server prep_bid string (buf)
+        
         char *bid = strtok(NULL, " ");
         char *ptr;
         int curr_bid = strtol(bid, &ptr, 10); // convert bid to int
         if (curr_bid <= 0) {
-            fprintf(stderr, "ERROR malformed bid: %s", buf);
+            if (VERBOSE) {
+                fprintf(stderr, "ERROR malformed bid: %s", buf);
+            }
         }
         else {
             a[index].current_bid = curr_bid;
         }
-        printf("bid = %s", bid);
         
         char *time = strtok(NULL, " ");
         char *ptr2;
@@ -201,7 +201,7 @@ int main(void) {
         auc.sock_fd = -1;
 	    char empty[10] = "empty\0";
         strncpy(auc.item, empty, 10);
-        auc_data[k] = auc;
+        auc_data[k] = auc; // populate array of structs with empty auction_data
     }
     
     int com; // command
@@ -212,10 +212,13 @@ int main(void) {
     fflush(stdout);
     int num_read = read(STDIN_FILENO, name, BUF_SIZE); // returns number of bytes of username
     if(num_read <= 0){
-        fprintf(stderr, "ERROR: name read from stdin failed\n");
-        exit(1);
+        if (VERBOSE) {
+            fprintf(stderr, "ERROR: name read from stdin failed\n");
+            exit(1);
+        }
     }
     name[num_read] = '\0';
+    
     print_menu();
     // TODO
     // initialize set of file descs
@@ -223,30 +226,24 @@ int main(void) {
     fd_set all_fds;
     FD_ZERO(&all_fds); // clears all fds in the set
     FD_SET(max_fd, &all_fds); // add max_fd into set of all fds
-
-    int num_auc = 0;
+    int num_auc = 0; // auction number
 
     while(1) {
         print_prompt();
         fd_set write_fds = all_fds;
         fd_set listen_fds = all_fds;
-        int nready = select(max_fd + 1, &listen_fds, NULL, NULL, 0); // select gives which fds are ready to be read from
-        if (nready == -1) {
-            perror("server: select1");
-            exit(1);
-        }
         FD_SET(sock_fd, &write_fds);
         FD_SET(sock_fd, &listen_fds);
 
         int write_ready = select(max_fd + 1, NULL, &write_fds, NULL, 0); // check which fds ready to write to
         if (write_ready == -1) {
-            perror("server: select2");
+            perror("server: select write");
             exit(1);
         }
 
         int read_ready = select(max_fd + 1, &listen_fds, NULL, NULL, 0);
         if (read_ready == -1) {
-            perror("server:select2");
+            perror("server: select read");
             exit(1);
         }
 
@@ -261,30 +258,37 @@ int main(void) {
             char arg1[BUF_SIZE];
             char arg2[BUF_SIZE];
             com = parse_command(menu, BUF_SIZE, arg1, arg2); // check what menu command was chosen
-            if (com == -1) {
+
+            if (com == -1) { // invalid command
                 perror("parse command wrong");
                 exit(1);
             }
             
             else if (com == ADD) {
-                char *a2;
-                long port = strtol(arg2, &a2, 10); // convert arg2 to port int
+                char *a2; // port string
+                long port = strtol(arg2, &a2, 10); // convert arg2 to int for port
                 if (port == 0) {
                     printf("invalid port number");
                     break;
                 }
                 
                 sock_fd = add_server(arg1, port);
-                //for (int i = 0; i < MAX_AUCTIONS; i++) {
-                    if (auc_data[num_auc].sock_fd == -1) { // if this auction hasn't been initialized yet
-                        auc_data[num_auc].sock_fd = sock_fd; // set this auction's fd to the fd returned by add_server
-                        if (sock_fd > max_fd) { // update max_fd if needed
-                            max_fd = sock_fd;
-                        }
-                        FD_SET(sock_fd, &all_fds); // add sock_fd to all_fds fd_set
-                        num_auc++;
+                if (auc_data[num_auc].sock_fd == -1) { // if this auction hasn't been initialized yet
+                    auc_data[num_auc].sock_fd = sock_fd; // set this auction's fd to the fd returned by add_server
+                    if (sock_fd > max_fd) { // update max_fd if needed
+                        max_fd = sock_fd;
                     }
-                //}
+                    FD_SET(sock_fd, &all_fds); // add sock_fd to all_fds fd_set
+                    if (num_auc < MAX_AUCTIONS) {
+                        num_auc++; // next time ADD is called, initializes the next auction struct in the array 
+                    }
+                    else {
+                        if (VERBOSE) {
+                            printf("reached maximum number of auctions");
+                            break;
+                        }
+                    }
+                }
                 
                 if (write(sock_fd, name, strlen(name) + 1) == -1) { // write username to server through sock_fd
                     perror("client: write");
@@ -308,11 +312,10 @@ int main(void) {
                 close(sock_fd);
                 FD_CLR(sock_fd, &listen_fds);
                 exit(0);
-            }
-            
+            }  
         }
 
-        for (int c = 0; c < MAX_AUCTIONS; c++) { // update each auction after each command
+        for (int c = 0; c < MAX_AUCTIONS; c++) { // update each auction after each command is inputted
             int client_fd = auc_data[c].sock_fd; 
             if (client_fd > -1 && FD_ISSET(client_fd, &listen_fds)) { // if client_fd is readable from server and is an initialized valid auction
                 char buf[BUF_SIZE];
@@ -322,10 +325,7 @@ int main(void) {
                     exit(0);
                     break;
                 }
-                buf[r] = '\0';
-                printf("buf is %s\n", buf);
                 update_auction(buf, BUF_SIZE, auc_data, c);
-                printf("updated auction\n");
            }
         }
     }
