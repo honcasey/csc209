@@ -304,7 +304,7 @@ int main(void) {
                 close(sock_fd);
                 FD_CLR(sock_fd, &listen_fds);
                 exit(0);
-            }
+            }break;
         }
 
         for (int c = 0; c < MAX_AUCTIONS; c++) { // update each auction after each command
