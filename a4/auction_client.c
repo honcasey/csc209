@@ -199,7 +199,7 @@ int main(void) {
         struct auction_data auc; // initialize empty auction_data struct
         auc.current_bid = 0;
         auc.sock_fd = -1;
-	char empty[10] = "empty\0";
+	    char empty[10] = "empty\0";
         strncpy(auc.item, empty, 10);
         auc_data[k] = auc;
     }
@@ -223,6 +223,8 @@ int main(void) {
     fd_set all_fds;
     FD_ZERO(&all_fds); // clears all fds in the set
     FD_SET(max_fd, &all_fds); // add max_fd into set of all fds
+
+    int num_auc = 0;
 
     while(1) {
         print_prompt();
@@ -273,15 +275,16 @@ int main(void) {
                 }
                 
                 sock_fd = add_server(arg1, port);
-                for (int i = 0; i < MAX_AUCTIONS; i++) {
-                    if (auc_data[i].sock_fd == -1) {
-                        auc_data[i].sock_fd = sock_fd;
-                        if (sock_fd > max_fd) {
+                //for (int i = 0; i < MAX_AUCTIONS; i++) {
+                    if (auc_data[num_auc].sock_fd == -1) { // if this auction hasn't been initialized yet
+                        auc_data[num_auc].sock_fd = sock_fd; // set this auction's fd to the fd returned by add_server
+                        if (sock_fd > max_fd) { // update max_fd if needed
                             max_fd = sock_fd;
                         }
-                        FD_SET(sock_fd, &all_fds);
+                        FD_SET(sock_fd, &all_fds); // add sock_fd to all_fds fd_set
+                        num_auc++;
                     }
-                }
+                //}
                 
                 if (write(sock_fd, name, strlen(name) + 1) == -1) { // write username to server through sock_fd
                     perror("client: write");
@@ -311,7 +314,7 @@ int main(void) {
 
         for (int c = 0; c < MAX_AUCTIONS; c++) { // update each auction after each command
             int client_fd = auc_data[c].sock_fd; 
-          if (client_fd > -1 && FD_ISSET(client_fd, &listen_fds)) { // if client_fd is readable from server
+            if (client_fd > -1 && FD_ISSET(client_fd, &listen_fds)) { // if client_fd is readable from server and is an initialized valid auction
                 char buf[BUF_SIZE];
                 int r = read(client_fd, buf, BUF_SIZE); // read something from the server
                 if (r == 0) {
