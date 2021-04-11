@@ -238,11 +238,14 @@ int main(void) {
             if (menu_read == 0) {
                 break;
             }
+            menu[menu_read] = '\0';
             char arg1[BUF_SIZE];
             char arg2[BUF_SIZE];
             com = parse_command(menu, BUF_SIZE, arg1, arg2); // check what menu command was chosen
-
-            if (com == ADD) {
+            if (com == -1) {
+                perror("parse command wrong");
+            }
+            else if (com == ADD) {
                 char *a2;
                 long port = strtol(arg2, &a2, 10); // convert arg2 to port int
                 if (port == 0) {
