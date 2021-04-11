@@ -239,7 +239,7 @@ int main(void) {
             char menu[BUF_SIZE]; // menu option 
             int menu_read = read(STDIN_FILENO, menu, BUF_SIZE); // read inputted command from stdin into menu
             if (menu_read == 0) {
-                // break;
+                break;
             }
             com = parse_command(menu, BUF_SIZE, arg1, arg2); // check what menu command was chosen
 
@@ -252,7 +252,7 @@ int main(void) {
                 }
                 
                 sock_fd = add_server(arg1, port);
-                max_fd++;
+                max_fd = sock_fd;
 
                 fd_set write_fds = all_fds;
                 FD_SET(sock_fd, &write_fds);
@@ -293,6 +293,7 @@ int main(void) {
             }
             else if (com == QUIT) { // close open sockets and exit
                 close(sock_fd);
+                FD_CLR(sock_fd, &listen_fds);
                 exit(0);
             }
             else {
@@ -303,6 +304,7 @@ int main(void) {
         for (int c = 0; c < MAX_AUCTIONS; c++) { // update each auction after each command
             int client_fd = auc_data[c].sock_fd; 
             if (client_fd > -1 && FD_ISSET(client_fd, &listen_fds)) { // if client_fd is readable from server
+            // never gets here
                 char buf[BUF_SIZE];
                 int r = read(client_fd, buf, BUF_SIZE); // read something from the server
                 if (r == 0) {
