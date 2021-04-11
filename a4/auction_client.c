@@ -303,9 +303,12 @@ int main(void) {
                 char buf[BUF_SIZE];
                 int r = read(client_fd, buf, BUF_SIZE); // read something from the server
                 if (r == 0) {
+                    FD_CLR(client_fd, &listen_fds);
+                    exit(0);
                     break;
                 }
                 buf[r] = '\0';
+                printf("buf is %s\n", buf);
                 update_auction(buf, BUF_SIZE, auc_data, c);
                 printf("updated auction\n");
             }
