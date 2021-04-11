@@ -194,10 +194,11 @@ int main(void) {
     // Declare and initialize necessary variables
     // TODO
     struct auction_data auc_data[MAX_AUCTIONS]; // array of auction_data structs
+
     for (int k = 0; k < MAX_AUCTIONS; k++) {
         struct auction_data auc; // initialize empty auction_data struct
         auc.current_bid = 0;
-        char empty[10] = "empty";
+        char empty[10] = "empty\0";
         strncpy(auc.item, empty, 10);
         auc_data[k] = auc;
     }
@@ -298,19 +299,18 @@ int main(void) {
                     close(sock_fd);
                     exit(1);
                 }
-                printf("wrote to sock_fd = %d with bid %s\n", which, arg2);
             }
             else if (com == QUIT) { // close open sockets and exit
                 close(sock_fd);
                 FD_CLR(sock_fd, &listen_fds);
                 exit(0);
-            }break;
+            }
+            break;
         }
 
         for (int c = 0; c < MAX_AUCTIONS; c++) { // update each auction after each command
             int client_fd = auc_data[c].sock_fd; 
             if (client_fd > -1 && FD_ISSET(client_fd, &listen_fds)) { // if client_fd is readable from server
-            // never gets here
                 char buf[BUF_SIZE];
                 int r = read(client_fd, buf, BUF_SIZE); // read something from the server
                 if (r == 0) {
