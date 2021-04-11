@@ -296,7 +296,7 @@ int main(void) {
                 int which = strtol(arg1, &ind, 10);
                 if (write(auc_data[which].sock_fd, arg2, strlen(arg2) + 1) == -1) { // write bid (arg2) to auction server stored at index (which) in auction_data array
                     perror("client: bid write");
-                    close(sock_fd);
+                    close(auc_data[which].sock_fd);
                     exit(1);
                 }
             }
