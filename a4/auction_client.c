@@ -289,7 +289,6 @@ int main(void) {
             }
             else if (com == SHOW) {
                 print_auctions(auc_data, MAX_AUCTIONS); // print current auction data to stdout
-                fflush(stdout);
             }
             else if (com == BID) {
                 char *ind;
@@ -299,6 +298,7 @@ int main(void) {
                     close(sock_fd);
                     exit(1);
                 }
+                printf("wrote to sock_fd = %d with bid %s\n", which, arg2);
             }
             else if (com == QUIT) { // close open sockets and exit
                 close(sock_fd);
