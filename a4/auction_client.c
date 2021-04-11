@@ -244,6 +244,7 @@ int main(void) {
             com = parse_command(menu, BUF_SIZE, arg1, arg2); // check what menu command was chosen
             if (com == -1) {
                 perror("parse command wrong");
+                exit(1);
             }
             else if (com == ADD) {
                 char *a2;
@@ -254,27 +255,33 @@ int main(void) {
                 }
                 
                 sock_fd = add_server(arg1, port);
-                max_fd = sock_fd;
-
-                fd_set write_fds = all_fds;
-                FD_SET(sock_fd, &write_fds);
-                FD_SET(sock_fd, &listen_fds);
-                int write_ready = select(max_fd + 1, NULL, &write_fds, NULL, 0); // check which fds ready to write to
-                if (write_ready == -1) {
-                    perror("server: select2");
-                    exit(1);
+                for (int i = 0; i < MAX_AUCTIONS; i++) {
+                    if (auc_data[i].sock_fd == -1) {
+                        auc_data[i].sock_fd = sock_fd;
+                        if (sock_fd > max_fd) {
+                            max_fd = sock_fd;
+                        }
+                        FD_SET(sock_fd, &all_fds);
+                    }
                 }
-                int read_ready = select(max_fd + 1, &listen_fds, NULL, NULL, 0);
-                if (read_ready == -1) {
-                    perror("server:select2");
-                    exit(1);
-                }
+                // FD_SET(sock_fd, &write_fds);
+                // FD_SET(sock_fd, &listen_fds);
+                // int write_ready = select(max_fd + 1, NULL, &write_fds, NULL, 0); // check which fds ready to write to
+                // if (write_ready == -1) {
+                //     perror("server: select2");
+                //     exit(1);
+                // }
+                // int read_ready = select(max_fd + 1, &listen_fds, NULL, NULL, 0);
+                // if (read_ready == -1) {
+                //     perror("server:select2");
+                //     exit(1);
+                // }
 
-                if (write(sock_fd, name, strlen(name) + 1) == -1) { // write username to server through sock_fd
-                    perror("client: write");
-                    close(sock_fd);
-                    exit(1);
-                } 
+                // if (write(sock_fd, name, strlen(name) + 1) == -1) { // write username to server through sock_fd
+                //     perror("client: write");
+                //     close(sock_fd);
+                //     exit(1);
+                // } 
             }
             else if (com == SHOW) {
                 print_auctions(auc_data, MAX_AUCTIONS); // print current auction data to stdout
