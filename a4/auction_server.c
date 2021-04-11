@@ -295,7 +295,7 @@ int main(int argc, char **argv) {
             char buf[BUF_SIZE];
             sprintf(buf, "Auction closed: %s wins with a bid of %d\r\n", 
                     users[auction.client].name, auction.highest_bid);
-            printf("%s", buf);
+            printf("here %s", buf);
             broadcast(users, buf, BUF_SIZE);
             exit(0);
         }

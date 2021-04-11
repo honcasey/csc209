@@ -270,23 +270,19 @@ int main(void) {
                     exit(1);
                 }
 
-                //if (FD_ISSET(sock_fd, &write_fds)) { // if sock_fd is readable from
                 if (write(sock_fd, name, strlen(name) + 1) == -1) { // write username to server through sock_fd
                     perror("client: write");
                     close(sock_fd);
                     exit(1);
                 } 
-                //}
             }
             else if (com == SHOW) {
                 print_auctions(auc_data, MAX_AUCTIONS); // print current auction data to stdout
                 fflush(stdout);
             }
             else if (com == BID) {
-                // printf("arg1 = %s, arg2 = %s\n", arg1, arg2);
                 char *ind;
                 int which = strtol(arg1, &ind, 10);
-
                 if (write(auc_data[which].sock_fd, arg2, strlen(arg2) + 1) == -1) { // write bid (arg2) to auction server stored at index (which) in auction_data array
                     perror("client: bid write");
                     close(sock_fd);
@@ -297,9 +293,6 @@ int main(void) {
                 close(sock_fd);
                 FD_CLR(sock_fd, &listen_fds);
                 exit(0);
-            }
-            else {
-                break;
             }
         }
 
