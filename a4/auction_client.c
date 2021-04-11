@@ -204,7 +204,7 @@ int main(void) {
     }
     
     int com; // command
-    int sock_fd;
+    int sock_fd = STDIN_FILENO;
 
     // Get the user to provide a name.
     printf("Please enter a username: ");
