@@ -161,7 +161,7 @@ void update_auction(char *buf, int size, struct auction_data *a, int index) {
     if (strncmp(a[index].item, "empty", 6) == 0) { // if it's the first message
         strncpy(a[index].item, buf, size); // copy item name to item field
     }
-    if (strncmp(buf, "Auction closed", strlen("Auction closed")) == 0) { // if auction is closed
+    else if (strncmp(buf, "Auction closed", strlen("Auction closed")) == 0) { // if auction is closed
         strncpy(a[index].item, "closed", strlen("closed")); // change item name to "closed"
     }
     else {
@@ -198,7 +198,8 @@ int main(void) {
     for (int k = 0; k < MAX_AUCTIONS; k++) {
         struct auction_data auc; // initialize empty auction_data struct
         auc.current_bid = 0;
-        char empty[10] = "empty\0";
+        auc.sock_fd = -1;
+	char empty[10] = "empty\0";
         strncpy(auc.item, empty, 10);
         auc_data[k] = auc;
     }
@@ -305,12 +306,12 @@ int main(void) {
                 FD_CLR(sock_fd, &listen_fds);
                 exit(0);
             }
-            break;
+            
         }
 
         for (int c = 0; c < MAX_AUCTIONS; c++) { // update each auction after each command
             int client_fd = auc_data[c].sock_fd; 
-            if (client_fd > -1 && FD_ISSET(client_fd, &listen_fds)) { // if client_fd is readable from server
+          if (client_fd > -1 && FD_ISSET(client_fd, &listen_fds)) { // if client_fd is readable from server
                 char buf[BUF_SIZE];
                 int r = read(client_fd, buf, BUF_SIZE); // read something from the server
                 if (r == 0) {
@@ -322,7 +323,7 @@ int main(void) {
                 printf("buf is %s\n", buf);
                 update_auction(buf, BUF_SIZE, auc_data, c);
                 printf("updated auction\n");
-            }
+           }
         }
     }
     return 0; // Shoud never get here
