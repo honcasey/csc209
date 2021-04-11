@@ -193,9 +193,6 @@ int main(void) {
     char name[BUF_SIZE];
     // Declare and initialize necessary variables
     // TODO
-    char arg1[BUF_SIZE];
-    char arg2[BUF_SIZE];
-
     struct auction_data auc_data[MAX_AUCTIONS]; // array of auction_data structs
     for (int k = 0; k < MAX_AUCTIONS; k++) {
         struct auction_data auc; // initialize empty auction_data struct
@@ -241,6 +238,8 @@ int main(void) {
             if (menu_read == 0) {
                 break;
             }
+            char arg1[BUF_SIZE];
+            char arg2[BUF_SIZE];
             com = parse_command(menu, BUF_SIZE, arg1, arg2); // check what menu command was chosen
 
             if (com == ADD) {
@@ -281,7 +280,7 @@ int main(void) {
                 fflush(stdout);
             }
             else if (com == BID) {
-                printf("arg1 = %s, arg2 = %s\n", arg1, arg2);
+                // printf("arg1 = %s, arg2 = %s\n", arg1, arg2);
                 char *ind;
                 int which = strtol(arg1, &ind, 10);
 
