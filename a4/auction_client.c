@@ -168,7 +168,7 @@ void update_auction(char *buf, int size, struct auction_data *a, int index) {
         char *item = strtok(buf, " "); // split up server prep_bid string
         printf("item = %s", item);
 
-        char *bid = strtok(buf, " ");
+        char *bid = strtok(NULL, " ");
         char *ptr;
         int curr_bid = strtol(bid, &ptr, 10); // convert bid to int
         if (curr_bid <= 0) {
@@ -179,7 +179,7 @@ void update_auction(char *buf, int size, struct auction_data *a, int index) {
         }
         printf("bid = %s", bid);
         
-        char *time = strtok(buf, " ");
+        char *time = strtok(NULL, " ");
         char *ptr2;
         int curr_time = strtol(time, &ptr2, 10);
         
